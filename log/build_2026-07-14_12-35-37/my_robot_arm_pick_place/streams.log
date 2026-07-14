@@ -1,0 +1,22 @@
+[1.271s] Invoking command in '/home/ddd/ros2_ws/src/my_robot_arm_pick_place': AMENT_PREFIX_PATH=/home/ddd/ros2_ws/install/my_robot_arm_moveit_config:/home/ddd/ros2_ws/install/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_description:${AMENT_PREFIX_PATH} DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/ddd/ros2_ws/build/my_robot_arm_pick_place/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/python3.12/site-packages:/home/ddd/ros2_ws/install/my_robot_arm_moveit_config/lib/python3.12/site-packages:/home/ddd/ros2_ws/install/my_robot_arm_control/lib/python3.12/site-packages:/home/ddd/ros2_ws/install/my_robot_arm_description/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_robot_arm_pick_place build --build-base /home/ddd/ros2_ws/build/my_robot_arm_pick_place/build install --record /home/ddd/ros2_ws/build/my_robot_arm_pick_place/install.log --install-scripts $base/lib/my_robot_arm_pick_place --single-version-externally-managed install_data
+[1.679s] running egg_info
+[1.708s] writing ../../build/my_robot_arm_pick_place/my_robot_arm_pick_place.egg-info/PKG-INFO
+[1.708s] writing dependency_links to ../../build/my_robot_arm_pick_place/my_robot_arm_pick_place.egg-info/dependency_links.txt
+[1.709s] writing entry points to ../../build/my_robot_arm_pick_place/my_robot_arm_pick_place.egg-info/entry_points.txt
+[1.709s] writing requirements to ../../build/my_robot_arm_pick_place/my_robot_arm_pick_place.egg-info/requires.txt
+[1.709s] writing top-level names to ../../build/my_robot_arm_pick_place/my_robot_arm_pick_place.egg-info/top_level.txt
+[1.772s] reading manifest file '../../build/my_robot_arm_pick_place/my_robot_arm_pick_place.egg-info/SOURCES.txt'
+[1.773s] writing manifest file '../../build/my_robot_arm_pick_place/my_robot_arm_pick_place.egg-info/SOURCES.txt'
+[1.773s] running build
+[1.773s] running build_py
+[1.774s] running install
+[1.783s] running install_lib
+[1.814s] running install_data
+[1.814s] copying launch/pick_place_gazebo.launch.py -> /home/ddd/ros2_ws/install/my_robot_arm_pick_place/share/my_robot_arm_pick_place/launch
+[1.815s] running install_egg_info
+[1.845s] removing '/home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/python3.12/site-packages/my_robot_arm_pick_place-0.0.0-py3.12.egg-info' (and everything under it)
+[1.845s] Copying ../../build/my_robot_arm_pick_place/my_robot_arm_pick_place.egg-info to /home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/python3.12/site-packages/my_robot_arm_pick_place-0.0.0-py3.12.egg-info
+[1.847s] running install_scripts
+[2.047s] Installing pick_place_node script to /home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/my_robot_arm_pick_place
+[2.047s] writing list of installed files to '/home/ddd/ros2_ws/build/my_robot_arm_pick_place/install.log'
+[2.122s] Invoked command in '/home/ddd/ros2_ws/src/my_robot_arm_pick_place' returned '0': AMENT_PREFIX_PATH=/home/ddd/ros2_ws/install/my_robot_arm_moveit_config:/home/ddd/ros2_ws/install/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_description:${AMENT_PREFIX_PATH} DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/ddd/ros2_ws/build/my_robot_arm_pick_place/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/python3.12/site-packages:/home/ddd/ros2_ws/install/my_robot_arm_moveit_config/lib/python3.12/site-packages:/home/ddd/ros2_ws/install/my_robot_arm_control/lib/python3.12/site-packages:/home/ddd/ros2_ws/install/my_robot_arm_description/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_robot_arm_pick_place build --build-base /home/ddd/ros2_ws/build/my_robot_arm_pick_place/build install --record /home/ddd/ros2_ws/build/my_robot_arm_pick_place/install.log --install-scripts $base/lib/my_robot_arm_pick_place --single-version-externally-managed install_data

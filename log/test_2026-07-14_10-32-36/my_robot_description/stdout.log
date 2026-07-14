@@ -1,0 +1,47 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/ddd/ros2_ws/build/my_robot_description/.pytest_cache
+rootdir: /home/ddd/ros2_ws/src/my_robot_description
+plugins: ament-pep257-0.17.5, ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, cov-4.1.0, colcon-core-0.21.0
+collecting ... 
+collected 3 items                                                              
+
+test/test_copyright.py s                                                 [ 33%]
+test/test_flake8.py F                                                    [ 66%]
+test/test_pep257.py .                                                    [100%]
+
+=================================== FAILURES ===================================
+_________________________________ test_flake8 __________________________________
+test/test_flake8.py:23: in test_flake8
+    assert rc == 0, \
+E   AssertionError: Found 2 code style errors / warnings:
+E     ./launch/display.launch.py:50:7: W292 no newline at end of file
+E     ./setup.py:44:2: W292 no newline at end of file
+E   assert 1 == 0
+----------------------------- Captured stdout call -----------------------------
+
+./launch/display.launch.py:50:7: W292 no newline at end of file
+    ])      ^
+
+./setup.py:44:2: W292 no newline at end of file
+) ^
+
+2     W292 no newline at end of file
+
+6 files checked
+2 errors
+
+'W'-type errors: 2
+
+Checked files:
+
+* ./setup.py
+* ./launch/display.launch.py
+* ./my_robot_description/__init__.py
+* ./test/test_copyright.py
+* ./test/test_flake8.py
+* ./test/test_pep257.py
+- generated xml file: /home/ddd/ros2_ws/build/my_robot_description/pytest.xml --
+=========================== short test summary info ============================
+FAILED test/test_flake8.py::test_flake8 - AssertionError: Found 2 code style ...
+==================== 1 failed, 1 passed, 1 skipped in 0.23s ====================

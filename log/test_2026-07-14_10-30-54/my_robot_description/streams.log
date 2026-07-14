@@ -1,0 +1,120 @@
+[0.223s] Invoking command in '/home/ddd/ros2_ws/src/my_robot_description': AMENT_PREFIX_PATH=/home/ddd/ros2_ws/install/my_robot_description:${AMENT_PREFIX_PATH} DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTEST_ADDOPTS=--tb=short --junit-xml=/home/ddd/ros2_ws/build/my_robot_description/pytest.xml --junit-prefix=my_robot_description -o cache_dir=/home/ddd/ros2_ws/build/my_robot_description/.pytest_cache PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/home/ddd/ros2_ws/install/my_robot_description/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -m pytest
+[0.533s] ============================= test session starts ==============================
+[0.534s] platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+[0.537s] cachedir: /home/ddd/ros2_ws/build/my_robot_description/.pytest_cache
+[0.538s] rootdir: /home/ddd/ros2_ws/src/my_robot_description
+[0.538s] plugins: ament-pep257-0.17.5, ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, cov-4.1.0, colcon-core-0.21.0
+[0.604s] collecting ... 
+[0.605s] collected 3 items                                                              
+[0.605s] 
+[0.612s] test/test_copyright.py s                                                 [ 33%]
+[0.759s] test/test_flake8.py F                                                    [ 66%]
+[0.775s] test/test_pep257.py .                                                    [100%]
+[0.776s] 
+[0.776s] =================================== FAILURES ===================================
+[0.776s] _________________________________ test_flake8 __________________________________
+[0.776s] test/test_flake8.py:23: in test_flake8
+[0.776s]     assert rc == 0, \
+[0.776s] E   AssertionError: Found 15 code style errors / warnings:
+[0.776s] E     ./launch/display.launch.py:6:1: I100 Import statements are in the wrong order. 'from ament_index_python.packages import get_package_share_directory' should be before 'from launch_ros.actions import Node'
+[0.776s] E     ./launch/display.launch.py:12:9: Q000 Double quotes found but single quotes preferred
+[0.777s] E     ./launch/display.launch.py:17:9: Q000 Double quotes found but single quotes preferred
+[0.777s] E     ./launch/display.launch.py:18:9: Q000 Double quotes found but single quotes preferred
+[0.777s] E     ./launch/display.launch.py:30:21: Q000 Double quotes found but single quotes preferred
+[0.777s] E     ./launch/display.launch.py:31:24: Q000 Double quotes found but single quotes preferred
+[0.777s] E     ./launch/display.launch.py:34:21: Q000 Double quotes found but single quotes preferred
+[0.777s] E     ./launch/display.launch.py:40:21: Q000 Double quotes found but single quotes preferred
+[0.777s] E     ./launch/display.launch.py:41:24: Q000 Double quotes found but single quotes preferred
+[0.777s] E     ./launch/display.launch.py:45:21: Q000 Double quotes found but single quotes preferred
+[0.778s] E     ./launch/display.launch.py:46:24: Q000 Double quotes found but single quotes preferred
+[0.778s] E     ./launch/display.launch.py:47:18: Q000 Double quotes found but single quotes preferred
+[0.778s] E     ./launch/display.launch.py:48:24: Q000 Double quotes found but single quotes preferred
+[0.778s] E     ./launch/display.launch.py:51:7: W292 no newline at end of file
+[0.778s] E     ./setup.py:3:1: I201 Missing newline between import groups. 'from setuptools import find_packages, setup' is identified as Third Party and 'import os' is identified as Stdlib.
+[0.778s] E   assert 1 == 0
+[0.778s] ----------------------------- Captured stdout call -----------------------------
+[0.778s] 
+[0.778s] ./launch/display.launch.py:6:1: I100 Import statements are in the wrong order. 'from ament_index_python.packages import get_package_share_directory' should be before 'from launch_ros.actions import Node'
+[0.779s] from ament_index_python.packages import get_package_share_directory
+[0.779s] ^
+[0.779s] 
+[0.779s] ./launch/display.launch.py:12:9: Q000 Double quotes found but single quotes preferred
+[0.779s]         "my_robot_description"
+[0.779s]         ^
+[0.779s] 
+[0.779s] ./launch/display.launch.py:17:9: Q000 Double quotes found but single quotes preferred
+[0.780s]         "urdf",
+[0.780s]         ^
+[0.780s] 
+[0.780s] ./launch/display.launch.py:18:9: Q000 Double quotes found but single quotes preferred
+[0.780s]         "my_robot.urdf"
+[0.780s]         ^
+[0.780s] 
+[0.780s] ./launch/display.launch.py:30:21: Q000 Double quotes found but single quotes preferred
+[0.780s]             package="robot_state_publisher",
+[0.780s]                     ^
+[0.780s] 
+[0.781s] ./launch/display.launch.py:31:24: Q000 Double quotes found but single quotes preferred
+[0.781s]             executable="robot_state_publisher",
+[0.781s]                        ^
+[0.781s] 
+[0.781s] ./launch/display.launch.py:34:21: Q000 Double quotes found but single quotes preferred
+[0.781s]                     "robot_description": open(urdf_path).read()
+[0.781s]                     ^
+[0.781s] 
+[0.781s] ./launch/display.launch.py:40:21: Q000 Double quotes found but single quotes preferred
+[0.781s]             package="joint_state_publisher_gui",
+[0.782s]                     ^
+[0.782s] 
+[0.782s] ./launch/display.launch.py:41:24: Q000 Double quotes found but single quotes preferred
+[0.782s]             executable="joint_state_publisher_gui"
+[0.782s]                        ^
+[0.782s] 
+[0.782s] ./launch/display.launch.py:45:21: Q000 Double quotes found but single quotes preferred
+[0.782s]             package="rviz2",
+[0.782s]                     ^
+[0.782s] 
+[0.782s] ./launch/display.launch.py:46:24: Q000 Double quotes found but single quotes preferred
+[0.783s]             executable="rviz2",
+[0.783s]                        ^
+[0.783s] 
+[0.783s] ./launch/display.launch.py:47:18: Q000 Double quotes found but single quotes preferred
+[0.783s]             name="rviz2",
+[0.783s]                  ^
+[0.783s] 
+[0.783s] ./launch/display.launch.py:48:24: Q000 Double quotes found but single quotes preferred
+[0.783s]             arguments=["-d", rviz_config_path]
+[0.783s]                        ^
+[0.783s] 
+[0.783s] ./launch/display.launch.py:51:7: W292 no newline at end of file
+[0.784s]     ])      ^
+[0.784s] 
+[0.784s] ./setup.py:3:1: I201 Missing newline between import groups. 'from setuptools import find_packages, setup' is identified as Third Party and 'import os' is identified as Stdlib.
+[0.784s] from setuptools import find_packages, setup
+[0.784s] ^
+[0.784s] 
+[0.784s] 1     I100 Import statements are in the wrong order. 'from ament_index_python.packages import get_package_share_directory' should be before 'from launch_ros.actions import Node'
+[0.784s] 1     I201 Missing newline between import groups. 'from setuptools import find_packages, setup' is identified as Third Party and 'import os' is identified as Stdlib.
+[0.784s] 12    Q000 Double quotes found but single quotes preferred
+[0.784s] 1     W292 no newline at end of file
+[0.784s] 
+[0.784s] 6 files checked
+[0.784s] 15 errors
+[0.785s] 
+[0.785s] 'I'-type errors: 2
+[0.785s] 'Q'-type errors: 12
+[0.785s] 'W'-type errors: 1
+[0.785s] 
+[0.785s] Checked files:
+[0.785s] 
+[0.785s] * ./setup.py
+[0.785s] * ./launch/display.launch.py
+[0.785s] * ./my_robot_description/__init__.py
+[0.785s] * ./test/test_copyright.py
+[0.786s] * ./test/test_flake8.py
+[0.786s] * ./test/test_pep257.py
+[0.786s] - generated xml file: /home/ddd/ros2_ws/build/my_robot_description/pytest.xml --
+[0.786s] =========================== short test summary info ============================
+[0.786s] FAILED test/test_flake8.py::test_flake8 - AssertionError: Found 15 code style...
+[0.786s] ==================== 1 failed, 1 passed, 1 skipped in 0.24s ====================
+[0.842s] Invoked command in '/home/ddd/ros2_ws/src/my_robot_description' returned '1': AMENT_PREFIX_PATH=/home/ddd/ros2_ws/install/my_robot_description:${AMENT_PREFIX_PATH} DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTEST_ADDOPTS=--tb=short --junit-xml=/home/ddd/ros2_ws/build/my_robot_description/pytest.xml --junit-prefix=my_robot_description -o cache_dir=/home/ddd/ros2_ws/build/my_robot_description/.pytest_cache PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/home/ddd/ros2_ws/install/my_robot_description/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -m pytest

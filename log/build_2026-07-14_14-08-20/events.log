@@ -1,0 +1,85 @@
+[0.000000] (-) TimerEvent: {}
+[0.002231] (-) JobUnselected: {'identifier': 'my_robot'}
+[0.002497] (-) JobUnselected: {'identifier': 'my_robot_arm_control'}
+[0.002656] (-) JobUnselected: {'identifier': 'my_robot_arm_description'}
+[0.002768] (-) JobUnselected: {'identifier': 'my_robot_arm_gazebo'}
+[0.002845] (-) JobUnselected: {'identifier': 'my_robot_arm_moveit_config'}
+[0.003139] (-) JobUnselected: {'identifier': 'my_robot_description'}
+[0.003211] (-) JobUnselected: {'identifier': 'my_service'}
+[0.003310] (my_robot_arm_pick_place) JobQueued: {'identifier': 'my_robot_arm_pick_place', 'dependencies': OrderedDict({'my_robot_arm_description': '/home/ddd/ros2_ws/install/my_robot_arm_description', 'my_robot_arm_control': '/home/ddd/ros2_ws/install/my_robot_arm_control', 'my_robot_arm_moveit_config': '/home/ddd/ros2_ws/install/my_robot_arm_moveit_config'})}
+[0.003446] (my_robot_arm_pick_place) JobStarted: {'identifier': 'my_robot_arm_pick_place'}
+[0.099212] (-) TimerEvent: {}
+[0.199789] (-) TimerEvent: {}
+[0.300286] (-) TimerEvent: {}
+[0.400626] (-) TimerEvent: {}
+[0.501032] (-) TimerEvent: {}
+[0.601525] (-) TimerEvent: {}
+[0.702142] (-) TimerEvent: {}
+[0.802621] (-) TimerEvent: {}
+[0.903546] (-) TimerEvent: {}
+[1.004199] (-) TimerEvent: {}
+[1.104815] (-) TimerEvent: {}
+[1.205289] (-) TimerEvent: {}
+[1.305788] (-) TimerEvent: {}
+[1.406297] (-) TimerEvent: {}
+[1.506808] (-) TimerEvent: {}
+[1.607258] (-) TimerEvent: {}
+[1.707702] (-) TimerEvent: {}
+[1.808111] (-) TimerEvent: {}
+[1.908572] (-) TimerEvent: {}
+[2.009074] (-) TimerEvent: {}
+[2.109543] (-) TimerEvent: {}
+[2.210261] (-) TimerEvent: {}
+[2.310705] (-) TimerEvent: {}
+[2.411133] (-) TimerEvent: {}
+[2.511602] (-) TimerEvent: {}
+[2.612255] (-) TimerEvent: {}
+[2.712770] (-) TimerEvent: {}
+[2.813423] (-) TimerEvent: {}
+[2.913995] (-) TimerEvent: {}
+[3.014495] (-) TimerEvent: {}
+[3.115049] (-) TimerEvent: {}
+[3.215554] (-) TimerEvent: {}
+[3.315970] (-) TimerEvent: {}
+[3.416331] (-) TimerEvent: {}
+[3.516808] (-) TimerEvent: {}
+[3.617261] (-) TimerEvent: {}
+[3.717785] (-) TimerEvent: {}
+[3.818359] (-) TimerEvent: {}
+[3.919014] (-) TimerEvent: {}
+[4.004599] (my_robot_arm_pick_place) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--editable', '--build-directory', '/home/ddd/ros2_ws/build/my_robot_arm_pick_place/build', '--no-deps', 'symlink_data'], 'cwd': '/home/ddd/ros2_ws/build/my_robot_arm_pick_place', 'env': {'GJS_DEBUG_TOPICS': 'JS ERROR;JS LOG', 'VSCODE_CWD': '/home/ddd', 'GZ_SIM_RESOURCE_PATH': '/opt/ros/jazzy/share', 'USER': 'ddd', 'ANTIGRAVITY_SOURCE_METADATA': '{"tool":{"conversationId":"e258dfad-07f3-4ebe-8a33-49c6f545d256","stepIndex":291,"toolCall":{"id":"5ylnsmkt","name":"run_command","argumentsJson":"{\\"CommandLine\\":\\"source /opt/ros/jazzy/setup.bash \\\\u0026\\\\u0026 colcon build --packages-select my_robot_arm_pick_place --symlink-install\\",\\"Cwd\\":\\"/home/ddd/ros2_ws\\",\\"WaitMsBeforeAsync\\":3000,\\"toolAction\\":\\"Building pick_place package after launch fixes\\",\\"toolSummary\\":\\"Build pick_place package\\"}","thinkingSignature":"EuoBCucBARFNMg/Kq8FLphYZD626I6wrTqh+s2tTY5sSGa3zJkofO7K47vygTG2O9kL/rp+TI3bfzNTIAi+80WkM7KFnZIQS7K3p/jluAavyD1/xn0em9pQA4Mzezmf/yqI+TdADW69bE6Rqai/WnDqPUVVt9+IGjzdgBUxtYLhTcA/GMYTnAvXYzRsPiPdEhFaeuXcTQnXwOi2uQxBq2FmAaQ7nJHDE6+fJskVYmSkogacFLwjl69kKM/WjznCxVMqhmU+oX5Nkj02rXiuksVQQYkUxpiTctvs6Iy4S3CQQ928vzP+eUvxBb7Kj","originalName":"run_command"}}}', 'VSCODE_NLS_CONFIG': '{"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"/opt/antigravity-ide/resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}', 'GZ_CONFIG_PATH': '/opt/ros/jazzy/opt/gz_sim_vendor/share/gz:/opt/ros/jazzy/opt/sdformat_vendor/share/gz:/opt/ros/jazzy/opt/gz_gui_vendor/share/gz:/opt/ros/jazzy/opt/gz_transport_vendor/share/gz:/opt/ros/jazzy/opt/gz_rendering_vendor/share/gz:/opt/ros/jazzy/opt/gz_plugin_vendor/share/gz:/opt/ros/jazzy/opt/gz_fuel_tools_vendor/share/gz:/opt/ros/jazzy/opt/gz_msgs_vendor/share/gz:/opt/ros/jazzy/opt/gz_common_vendor/share/gz', 'XDG_SESSION_TYPE': 'x11', 'CLUTTER_DISABLE_MIPMAPPED_TEXT': '1', 'SHLVL': '0', 'LD_LIBRARY_PATH': '/opt/ros/jazzy/opt/gz_sim_vendor/lib:/opt/ros/jazzy/opt/gz_sensors_vendor/lib:/opt/ros/jazzy/opt/gz_physics_vendor/lib:/opt/ros/jazzy/opt/sdformat_vendor/lib:/opt/ros/jazzy/opt/rviz_ogre_vendor/lib:/opt/ros/jazzy/lib/x86_64-linux-gnu:/opt/ros/jazzy/opt/gz_gui_vendor/lib:/opt/ros/jazzy/opt/gz_transport_vendor/lib:/opt/ros/jazzy/opt/gz_rendering_vendor/lib:/opt/ros/jazzy/opt/gz_plugin_vendor/lib:/opt/ros/jazzy/opt/gz_fuel_tools_vendor/lib:/opt/ros/jazzy/opt/gz_msgs_vendor/lib:/opt/ros/jazzy/opt/gz_common_vendor/lib:/opt/ros/jazzy/opt/gz_math_vendor/lib:/opt/ros/jazzy/opt/gz_utils_vendor/lib:/opt/ros/jazzy/opt/gz_tools_vendor/lib:/opt/ros/jazzy/opt/gz_ogre_next_vendor/lib:/opt/ros/jazzy/opt/gz_dartsim_vendor/lib:/opt/ros/jazzy/opt/gz_cmake_vendor/lib:/opt/ros/jazzy/lib', 'HOME': '/home/ddd', 'CHROME_DESKTOP': 'antigravity-ide.desktop', 'DESKTOP_SESSION': 'ubuntu', 'VSCODE_IPC_HOOK': '/run/user/1000/vscode-f23ff601-1.10-main.sock', 'GIO_LAUNCHED_DESKTOP_FILE': '/home/ddd/.local/share/applications/antigravity-ide.desktop', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'PAGER': 'cat', 'MANAGERPID': '2546', 'GLFW_IM_MODULE': 'ibus', 'SYSTEMD_EXEC_PID': '2938', 'GSM_SKIP_SSH_AGENT_WORKAROUND': 'true', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'LIBVIRT_DEFAULT_URI': 'qemu:///system', 'ANTIGRAVITY_AGENT': '1', 'GIO_LAUNCHED_DESKTOP_FILE_PID': '6291', 'DEBUGINFOD_URLS': 'https://debuginfod.ubuntu.com', 'ROS_DISTRO': 'jazzy', 'GTK_IM_MODULE': 'fcitx', 'LOGNAME': 'ddd', 'JOURNAL_STREAM': '9:25976', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'MEMORY_PRESSURE_WATCH': '/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@x11.service/memory.pressure', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'ddd', 'TERM': 'dumb', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'FC_FONTATIONS': '1', 'WINDOWPATH': '2', 'ANTIGRAVITY_EDITOR_APP_ROOT': '/opt/antigravity-ide/resources/app', 'PATH': '/opt/ros/jazzy/opt/gz_msgs_vendor/bin:/opt/ros/jazzy/opt/gz_tools_vendor/bin:/opt/ros/jazzy/opt/gz_ogre_next_vendor/bin:/opt/ros/jazzy/bin:/home/ddd/.gemini/antigravity-ide/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/ddd/.local/share/JetBrains/Toolbox/scripts', 'SESSION_MANAGER': 'local/ddd:@/tmp/.ICE-unix/2905,unix/ddd:/tmp/.ICE-unix/2905', 'INVOCATION_ID': '0a65bbc411644699ba88e3c4ef37cec5', 'XDG_MENU_PREFIX': 'gnome-', 'XDG_RUNTIME_DIR': '/run/user/1000', 'GDK_BACKEND': 'x11', 'DISPLAY': ':1', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'XMODIFIERS': '@im=fcitx', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/gdm/Xauthority', 'SBX_CHROME_API_RQ': '1', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'AMENT_PREFIX_PATH': '/home/ddd/ros2_ws/install/my_robot_arm_moveit_config:/home/ddd/ros2_ws/install/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_description:/opt/ros/jazzy', 'SHELL': '/bin/bash', 'ANTIGRAVITY_LS_ADDRESS': 'localhost:39547', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'GPG_AGENT_INFO': '/run/user/1000/gnupg/S.gpg-agent:0:1', 'GJS_DEBUG_OUTPUT': 'stderr', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'GIT_PAGER': 'cat', 'QT_IM_MODULE': 'fcitx', 'ANTIGRAVITY_TRAJECTORY_ID': '5f7a4798-bf92-44a7-a3d1-11d9ac2043e9', 'PWD': '/home/ddd/ros2_ws/build/my_robot_arm_pick_place', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'VSCODE_CODE_CACHE_PATH': '/home/ddd/.config/Antigravity IDE/CachedData/e0b7a2bcf575cfba10528c4e7c10bd3ce2d7769a', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/share/gnome:/home/ddd/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'QTWEBENGINE_DICTIONARIES_PATH': '/usr/share/hunspell-bdic/', 'PYTHONPATH': '/home/ddd/ros2_ws/build/my_robot_arm_pick_place/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_moveit_config:/home/ddd/ros2_ws/install/my_robot_arm_moveit_config/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_control/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_description:/home/ddd/ros2_ws/install/my_robot_arm_description/lib/python3.12/site-packages:/opt/ros/jazzy/lib/python3.12/site-packages', 'GTK_USE_PORTAL': '1', 'COLCON': '1', 'QT_IM_MODULES': 'wayland;fcitx', 'MEMORY_PRESSURE_WRITE': 'c29tZSAyMDAwMDAgMjAwMDAwMAA=', 'ANTIGRAVITY_CSRF_TOKEN': 'de5136d3-3550-4c95-a581-3cb0578226b8', 'CMAKE_PREFIX_PATH': '/opt/ros/jazzy/opt/gz_sim_vendor:/opt/ros/jazzy/opt/gz_sensors_vendor:/opt/ros/jazzy/opt/gz_physics_vendor:/opt/ros/jazzy/opt/sdformat_vendor:/opt/ros/jazzy/opt/gz_gui_vendor:/opt/ros/jazzy/opt/gz_transport_vendor:/opt/ros/jazzy/opt/gz_rendering_vendor:/opt/ros/jazzy/opt/gz_plugin_vendor:/opt/ros/jazzy/opt/gz_fuel_tools_vendor:/opt/ros/jazzy/opt/gz_msgs_vendor:/opt/ros/jazzy/opt/gz_common_vendor:/opt/ros/jazzy/opt/gz_math_vendor:/opt/ros/jazzy/opt/gz_utils_vendor:/opt/ros/jazzy/opt/gz_tools_vendor:/opt/ros/jazzy/opt/gz_ogre_next_vendor:/opt/ros/jazzy/opt/gz_dartsim_vendor:/opt/ros/jazzy/opt/gz_cmake_vendor', 'VSCODE_PID': '6291'}, 'shell': False}
+[4.019182] (-) TimerEvent: {}
+[4.119733] (-) TimerEvent: {}
+[4.220343] (-) TimerEvent: {}
+[4.320821] (-) TimerEvent: {}
+[4.421301] (-) TimerEvent: {}
+[4.521754] (-) TimerEvent: {}
+[4.622176] (-) TimerEvent: {}
+[4.722655] (-) TimerEvent: {}
+[4.823100] (-) TimerEvent: {}
+[4.923454] (-) TimerEvent: {}
+[4.981531] (my_robot_arm_pick_place) StdoutLine: {'line': b'running develop\n'}
+[5.023609] (-) TimerEvent: {}
+[5.123991] (-) TimerEvent: {}
+[5.224316] (-) TimerEvent: {}
+[5.324657] (-) TimerEvent: {}
+[5.425100] (-) TimerEvent: {}
+[5.437593] (my_robot_arm_pick_place) StdoutLine: {'line': b'running egg_info\n'}
+[5.473449] (my_robot_arm_pick_place) StdoutLine: {'line': b'writing my_robot_arm_pick_place.egg-info/PKG-INFO\n'}
+[5.473872] (my_robot_arm_pick_place) StdoutLine: {'line': b'writing dependency_links to my_robot_arm_pick_place.egg-info/dependency_links.txt\n'}
+[5.474228] (my_robot_arm_pick_place) StdoutLine: {'line': b'writing entry points to my_robot_arm_pick_place.egg-info/entry_points.txt\n'}
+[5.474473] (my_robot_arm_pick_place) StdoutLine: {'line': b'writing requirements to my_robot_arm_pick_place.egg-info/requires.txt\n'}
+[5.474700] (my_robot_arm_pick_place) StdoutLine: {'line': b'writing top-level names to my_robot_arm_pick_place.egg-info/top_level.txt\n'}
+[5.525234] (-) TimerEvent: {}
+[5.542805] (my_robot_arm_pick_place) StdoutLine: {'line': b"reading manifest file 'my_robot_arm_pick_place.egg-info/SOURCES.txt'\n"}
+[5.543999] (my_robot_arm_pick_place) StdoutLine: {'line': b"writing manifest file 'my_robot_arm_pick_place.egg-info/SOURCES.txt'\n"}
+[5.578486] (my_robot_arm_pick_place) StdoutLine: {'line': b'running build_ext\n'}
+[5.578791] (my_robot_arm_pick_place) StdoutLine: {'line': b'Creating /home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/python3.12/site-packages/my-robot-arm-pick-place.egg-link (link to .)\n'}
+[5.579787] (my_robot_arm_pick_place) StdoutLine: {'line': b'Installing pick_place_node script to /home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/my_robot_arm_pick_place\n'}
+[5.580235] (my_robot_arm_pick_place) StdoutLine: {'line': b'\n'}
+[5.580554] (my_robot_arm_pick_place) StdoutLine: {'line': b'Installed /home/ddd/ros2_ws/build/my_robot_arm_pick_place\n'}
+[5.580780] (my_robot_arm_pick_place) StdoutLine: {'line': b'running symlink_data\n'}
+[5.625338] (-) TimerEvent: {}
+[5.652261] (my_robot_arm_pick_place) CommandEnded: {'returncode': 0}
+[5.669444] (my_robot_arm_pick_place) JobEnded: {'identifier': 'my_robot_arm_pick_place', 'rc': 0}
+[5.670381] (-) EventReactorShutdown: {}

@@ -1,0 +1,1 @@
+/home/ddd/ros2_ws/src/my_robot_arm_pick_place/launch/pick_place_gazebo.launch.py

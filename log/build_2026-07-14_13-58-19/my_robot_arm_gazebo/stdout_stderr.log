@@ -1,0 +1,17 @@
+running develop
+running egg_info
+writing my_robot_arm_gazebo.egg-info/PKG-INFO
+writing dependency_links to my_robot_arm_gazebo.egg-info/dependency_links.txt
+writing requirements to my_robot_arm_gazebo.egg-info/requires.txt
+writing top-level names to my_robot_arm_gazebo.egg-info/top_level.txt
+reading manifest file 'my_robot_arm_gazebo.egg-info/SOURCES.txt'
+writing manifest file 'my_robot_arm_gazebo.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/ddd/ros2_ws/install/my_robot_arm_gazebo/lib/python3.12/site-packages/my-robot-arm-gazebo.egg-link (link to .)
+
+Installed /home/ddd/ros2_ws/build/my_robot_arm_gazebo
+running symlink_data
+symbolically linking /home/ddd/ros2_ws/build/my_robot_arm_gazebo/resource/my_robot_arm_gazebo -> /home/ddd/ros2_ws/install/my_robot_arm_gazebo/share/ament_index/resource_index/packages
+symbolically linking /home/ddd/ros2_ws/build/my_robot_arm_gazebo/package.xml -> /home/ddd/ros2_ws/install/my_robot_arm_gazebo/share/my_robot_arm_gazebo
+symbolically linking /home/ddd/ros2_ws/build/my_robot_arm_gazebo/launch/gazebo.launch.py -> /home/ddd/ros2_ws/install/my_robot_arm_gazebo/share/my_robot_arm_gazebo/launch
+symbolically linking /home/ddd/ros2_ws/build/my_robot_arm_gazebo/worlds/pick_place_world.sdf -> /home/ddd/ros2_ws/install/my_robot_arm_gazebo/share/my_robot_arm_gazebo/worlds

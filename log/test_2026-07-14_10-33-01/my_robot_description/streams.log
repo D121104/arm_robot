@@ -1,0 +1,49 @@
+[0.213s] Invoking command in '/home/ddd/ros2_ws/src/my_robot_description': AMENT_PREFIX_PATH=/home/ddd/ros2_ws/install/my_robot_description:${AMENT_PREFIX_PATH} DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTEST_ADDOPTS=--tb=short --junit-xml=/home/ddd/ros2_ws/build/my_robot_description/pytest.xml --junit-prefix=my_robot_description -o cache_dir=/home/ddd/ros2_ws/build/my_robot_description/.pytest_cache PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/home/ddd/ros2_ws/install/my_robot_description/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -m pytest
+[0.504s] ============================= test session starts ==============================
+[0.504s] platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+[0.508s] cachedir: /home/ddd/ros2_ws/build/my_robot_description/.pytest_cache
+[0.508s] rootdir: /home/ddd/ros2_ws/src/my_robot_description
+[0.508s] plugins: ament-pep257-0.17.5, ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, cov-4.1.0, colcon-core-0.21.0
+[0.573s] collecting ... 
+[0.573s] collected 3 items                                                              
+[0.573s] 
+[0.578s] test/test_copyright.py s                                                 [ 33%]
+[0.726s] test/test_flake8.py F                                                    [ 66%]
+[0.742s] test/test_pep257.py .                                                    [100%]
+[0.742s] 
+[0.742s] =================================== FAILURES ===================================
+[0.742s] _________________________________ test_flake8 __________________________________
+[0.742s] test/test_flake8.py:23: in test_flake8
+[0.742s]     assert rc == 0, \
+[0.743s] E   AssertionError: Found 2 code style errors / warnings:
+[0.743s] E     ./launch/display.launch.py:50:7: W292 no newline at end of file
+[0.743s] E     ./setup.py:44:2: W292 no newline at end of file
+[0.743s] E   assert 1 == 0
+[0.743s] ----------------------------- Captured stdout call -----------------------------
+[0.743s] 
+[0.743s] ./launch/display.launch.py:50:7: W292 no newline at end of file
+[0.743s]     ])      ^
+[0.743s] 
+[0.744s] ./setup.py:44:2: W292 no newline at end of file
+[0.744s] ) ^
+[0.744s] 
+[0.744s] 2     W292 no newline at end of file
+[0.744s] 
+[0.744s] 6 files checked
+[0.744s] 2 errors
+[0.744s] 
+[0.744s] 'W'-type errors: 2
+[0.744s] 
+[0.744s] Checked files:
+[0.744s] 
+[0.745s] * ./setup.py
+[0.745s] * ./launch/display.launch.py
+[0.745s] * ./my_robot_description/__init__.py
+[0.745s] * ./test/test_copyright.py
+[0.745s] * ./test/test_flake8.py
+[0.745s] * ./test/test_pep257.py
+[0.745s] - generated xml file: /home/ddd/ros2_ws/build/my_robot_description/pytest.xml --
+[0.745s] =========================== short test summary info ============================
+[0.745s] FAILED test/test_flake8.py::test_flake8 - AssertionError: Found 2 code style ...
+[0.745s] ==================== 1 failed, 1 passed, 1 skipped in 0.24s ====================
+[0.822s] Invoked command in '/home/ddd/ros2_ws/src/my_robot_description' returned '1': AMENT_PREFIX_PATH=/home/ddd/ros2_ws/install/my_robot_description:${AMENT_PREFIX_PATH} DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTEST_ADDOPTS=--tb=short --junit-xml=/home/ddd/ros2_ws/build/my_robot_description/pytest.xml --junit-prefix=my_robot_description -o cache_dir=/home/ddd/ros2_ws/build/my_robot_description/.pytest_cache PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/home/ddd/ros2_ws/install/my_robot_description/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -m pytest

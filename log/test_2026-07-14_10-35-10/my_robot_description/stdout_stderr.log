@@ -1,0 +1,14 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/ddd/ros2_ws/build/my_robot_description/.pytest_cache
+rootdir: /home/ddd/ros2_ws/src/my_robot_description
+plugins: ament-pep257-0.17.5, ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, cov-4.1.0, colcon-core-0.21.0
+collecting ... 
+collected 3 items                                                              
+
+test/test_copyright.py s                                                 [ 33%]
+test/test_flake8.py .                                                    [ 66%]
+test/test_pep257.py .                                                    [100%]
+
+- generated xml file: /home/ddd/ros2_ws/build/my_robot_description/pytest.xml --
+========================= 2 passed, 1 skipped in 0.21s =========================

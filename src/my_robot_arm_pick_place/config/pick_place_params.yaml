@@ -1,0 +1,62 @@
+# Pick and Place positions configuration
+# Units: meters (x, y, z) and radians (roll, pitch, yaw)
+
+pick_place_node:
+  ros__parameters:
+    # Pre-grasp approach height above pick object (m)
+    approach_height: 0.12
+
+    # Post-grasp retreat height (m)
+    retreat_height: 0.20
+
+    # Pre-place approach height above place position (m)
+    place_approach_height: 0.15
+
+    # Gripper open position (m per finger, max 0.04)
+    gripper_open: 0.035
+
+    # Gripper close position (m per finger, set to grip a 4cm cube)
+    gripper_close: 0.018
+
+    # Gripper max effort (N)
+    gripper_effort: 10.0
+
+    # Pick position (center of the red cube on the table)
+    pick_position:
+      x: 0.5
+      y: 0.0
+      z: 0.455
+
+    # Place position (green zone marker on the table)
+    place_position:
+      x: 0.5
+      y: 0.3
+      z: 0.455
+
+    # Orientation at pick/place (end-effector pointing downward)
+    # quaternion: x, y, z, w
+    pick_orientation:
+      x: 1.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+
+    place_orientation:
+      x: 1.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+
+    # Move group names
+    arm_group_name: 'panda_arm'
+    gripper_group_name: 'hand'
+
+    # Planning time limit (seconds)
+    planning_time: 10.0
+
+    # Number of planning attempts
+    num_planning_attempts: 5
+
+    # Velocity and acceleration scaling
+    max_velocity_scaling_factor: 0.3
+    max_acceleration_scaling_factor: 0.2

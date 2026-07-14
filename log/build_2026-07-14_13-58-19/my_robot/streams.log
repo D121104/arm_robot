@@ -1,0 +1,20 @@
+[5.686s] Invoking command in '/home/ddd/ros2_ws/build/my_robot': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/ddd/ros2_ws/build/my_robot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ddd/ros2_ws/install/my_robot/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/ddd/ros2_ws/build/my_robot/build --no-deps symlink_data --force
+[6.403s] running develop
+[6.747s] running egg_info
+[6.775s] writing my_robot.egg-info/PKG-INFO
+[6.775s] writing dependency_links to my_robot.egg-info/dependency_links.txt
+[6.776s] writing entry points to my_robot.egg-info/entry_points.txt
+[6.776s] writing requirements to my_robot.egg-info/requires.txt
+[6.776s] writing top-level names to my_robot.egg-info/top_level.txt
+[6.834s] reading manifest file 'my_robot.egg-info/SOURCES.txt'
+[6.835s] writing manifest file 'my_robot.egg-info/SOURCES.txt'
+[6.865s] running build_ext
+[6.865s] Creating /home/ddd/ros2_ws/install/my_robot/lib/python3.12/site-packages/my-robot.egg-link (link to .)
+[6.866s] Installing publisher script to /home/ddd/ros2_ws/install/my_robot/lib/my_robot
+[6.866s] Installing subscriber script to /home/ddd/ros2_ws/install/my_robot/lib/my_robot
+[6.866s] 
+[6.866s] Installed /home/ddd/ros2_ws/build/my_robot
+[6.867s] running symlink_data
+[6.867s] symbolically linking /home/ddd/ros2_ws/build/my_robot/resource/my_robot -> /home/ddd/ros2_ws/install/my_robot/share/ament_index/resource_index/packages
+[6.867s] symbolically linking /home/ddd/ros2_ws/build/my_robot/package.xml -> /home/ddd/ros2_ws/install/my_robot/share/my_robot
+[7.203s] Invoked command in '/home/ddd/ros2_ws/build/my_robot' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/ddd/ros2_ws/build/my_robot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ddd/ros2_ws/install/my_robot/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/ddd/ros2_ws/build/my_robot/build --no-deps symlink_data --force

@@ -1,0 +1,20 @@
+[5.637s] Invoking command in '/home/ddd/ros2_ws/build/my_service': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/ddd/ros2_ws/build/my_service/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ddd/ros2_ws/install/my_service/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/ddd/ros2_ws/build/my_service/build --no-deps symlink_data --force
+[6.340s] running develop
+[6.709s] running egg_info
+[6.737s] writing my_service.egg-info/PKG-INFO
+[6.737s] writing dependency_links to my_service.egg-info/dependency_links.txt
+[6.738s] writing entry points to my_service.egg-info/entry_points.txt
+[6.738s] writing requirements to my_service.egg-info/requires.txt
+[6.738s] writing top-level names to my_service.egg-info/top_level.txt
+[6.798s] reading manifest file 'my_service.egg-info/SOURCES.txt'
+[6.799s] writing manifest file 'my_service.egg-info/SOURCES.txt'
+[6.830s] running build_ext
+[6.830s] Creating /home/ddd/ros2_ws/install/my_service/lib/python3.12/site-packages/my-service.egg-link (link to .)
+[6.831s] Installing client script to /home/ddd/ros2_ws/install/my_service/lib/my_service
+[6.831s] Installing server script to /home/ddd/ros2_ws/install/my_service/lib/my_service
+[6.832s] 
+[6.832s] Installed /home/ddd/ros2_ws/build/my_service
+[6.832s] running symlink_data
+[6.832s] symbolically linking /home/ddd/ros2_ws/build/my_service/resource/my_service -> /home/ddd/ros2_ws/install/my_service/share/ament_index/resource_index/packages
+[6.832s] symbolically linking /home/ddd/ros2_ws/build/my_service/package.xml -> /home/ddd/ros2_ws/install/my_service/share/my_service
+[6.893s] Invoked command in '/home/ddd/ros2_ws/build/my_service' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/ddd/ros2_ws/build/my_service/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ddd/ros2_ws/install/my_service/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/ddd/ros2_ws/build/my_service/build --no-deps symlink_data --force

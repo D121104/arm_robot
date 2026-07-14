@@ -1,0 +1,17 @@
+[1.443s] Invoking command in '/home/ddd/ros2_ws/build/my_robot_arm_pick_place': AMENT_PREFIX_PATH=/home/ddd/ros2_ws/install/my_robot_arm_moveit_config:/home/ddd/ros2_ws/install/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_description DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/ddd/ros2_ws/build/my_robot_arm_pick_place/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_moveit_config:/home/ddd/ros2_ws/install/my_robot_arm_moveit_config/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_control/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_description:/home/ddd/ros2_ws/install/my_robot_arm_description/lib/python3.12/site-packages /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/ddd/ros2_ws/build/my_robot_arm_pick_place/build --no-deps symlink_data
+[1.795s] running develop
+[1.968s] running egg_info
+[1.984s] writing my_robot_arm_pick_place.egg-info/PKG-INFO
+[1.984s] writing dependency_links to my_robot_arm_pick_place.egg-info/dependency_links.txt
+[1.985s] writing entry points to my_robot_arm_pick_place.egg-info/entry_points.txt
+[1.985s] writing requirements to my_robot_arm_pick_place.egg-info/requires.txt
+[1.985s] writing top-level names to my_robot_arm_pick_place.egg-info/top_level.txt
+[2.014s] reading manifest file 'my_robot_arm_pick_place.egg-info/SOURCES.txt'
+[2.015s] writing manifest file 'my_robot_arm_pick_place.egg-info/SOURCES.txt'
+[2.033s] running build_ext
+[2.033s] Creating /home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/python3.12/site-packages/my-robot-arm-pick-place.egg-link (link to .)
+[2.034s] Installing pick_place_node script to /home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/my_robot_arm_pick_place
+[2.034s] 
+[2.034s] Installed /home/ddd/ros2_ws/build/my_robot_arm_pick_place
+[2.034s] running symlink_data
+[2.097s] Invoked command in '/home/ddd/ros2_ws/build/my_robot_arm_pick_place' returned '0': AMENT_PREFIX_PATH=/home/ddd/ros2_ws/install/my_robot_arm_moveit_config:/home/ddd/ros2_ws/install/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_description DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/ddd/ros2_ws/build/my_robot_arm_pick_place/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_moveit_config:/home/ddd/ros2_ws/install/my_robot_arm_moveit_config/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_control/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_description:/home/ddd/ros2_ws/install/my_robot_arm_description/lib/python3.12/site-packages /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/ddd/ros2_ws/build/my_robot_arm_pick_place/build --no-deps symlink_data

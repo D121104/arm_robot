@@ -1,0 +1,50 @@
+[0.000000] (-) TimerEvent: {}
+[0.000264] (-) JobUnselected: {'identifier': 'my_robot'}
+[0.000326] (-) JobUnselected: {'identifier': 'my_robot_arm_control'}
+[0.000358] (-) JobUnselected: {'identifier': 'my_robot_arm_description'}
+[0.000386] (-) JobUnselected: {'identifier': 'my_robot_arm_gazebo'}
+[0.000410] (-) JobUnselected: {'identifier': 'my_robot_arm_moveit_config'}
+[0.000437] (-) JobUnselected: {'identifier': 'my_robot_description'}
+[0.000462] (-) JobUnselected: {'identifier': 'my_service'}
+[0.000486] (my_robot_arm_pick_place) JobQueued: {'identifier': 'my_robot_arm_pick_place', 'dependencies': OrderedDict({'my_robot_arm_description': '/home/ddd/ros2_ws/install/my_robot_arm_description', 'my_robot_arm_control': '/home/ddd/ros2_ws/install/my_robot_arm_control', 'my_robot_arm_moveit_config': '/home/ddd/ros2_ws/install/my_robot_arm_moveit_config'})}
+[0.003271] (my_robot_arm_pick_place) JobStarted: {'identifier': 'my_robot_arm_pick_place'}
+[0.099638] (-) TimerEvent: {}
+[0.199989] (-) TimerEvent: {}
+[0.300422] (-) TimerEvent: {}
+[0.400719] (-) TimerEvent: {}
+[0.501017] (-) TimerEvent: {}
+[0.601334] (-) TimerEvent: {}
+[0.701591] (-) TimerEvent: {}
+[0.801900] (-) TimerEvent: {}
+[0.902301] (-) TimerEvent: {}
+[1.002684] (-) TimerEvent: {}
+[1.103098] (-) TimerEvent: {}
+[1.203423] (-) TimerEvent: {}
+[1.303672] (-) TimerEvent: {}
+[1.404010] (-) TimerEvent: {}
+[1.442335] (my_robot_arm_pick_place) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--editable', '--build-directory', '/home/ddd/ros2_ws/build/my_robot_arm_pick_place/build', '--no-deps', 'symlink_data'], 'cwd': '/home/ddd/ros2_ws/build/my_robot_arm_pick_place', 'env': {'GJS_DEBUG_TOPICS': 'JS ERROR;JS LOG', 'VSCODE_CWD': '/home/ddd', 'USER': 'ddd', 'ANTIGRAVITY_SOURCE_METADATA': '{"tool":{"conversationId":"e258dfad-07f3-4ebe-8a33-49c6f545d256","stepIndex":824,"toolCall":{"id":"ml0jnlhz","name":"run_command","argumentsJson":"{\\"CommandLine\\":\\"colcon build --symlink-install --packages-select my_robot_arm_pick_place\\",\\"Cwd\\":\\"/home/ddd/ros2_ws\\",\\"WaitMsBeforeAsync\\":8000,\\"toolAction\\":\\"Building package with modified node names and configs\\",\\"toolSummary\\":\\"Rebuild workspace\\"}","thinkingSignature":"EtYBCtMBARFNMg8CVrSF5rFKROcW7tsFvqJlFR5f3WC6UjdQYBoMMBfSVNmHYFUybS7/BpUwa4FYmD0Zg4Cf/XduECzahPpRw+g6EiFeL7lYlrmztnXDBYwBqpuOTrhZYZP4SHiKN2eh8BU9phwMdAbuUUc9XrzsohWM0uALP95tdVc3//zK9nreOexJffTrneZs5urVezquq0Xvi2DRmmzj/IXYXzwvijnq33OLB8kVHCm0SW7YopsAcVnWSImF++dnMa/XhOMsTEuDdbPL054jMHNh8LDKWQ==","originalName":"run_command"}}}', 'VSCODE_NLS_CONFIG': '{"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"/opt/antigravity-ide/resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}', 'XDG_SESSION_TYPE': 'x11', 'CLUTTER_DISABLE_MIPMAPPED_TEXT': '1', 'SHLVL': '0', 'HOME': '/home/ddd', 'CHROME_DESKTOP': 'antigravity-ide.desktop', 'DESKTOP_SESSION': 'ubuntu', 'VSCODE_IPC_HOOK': '/run/user/1000/vscode-f23ff601-1.10-main.sock', 'GIO_LAUNCHED_DESKTOP_FILE': '/home/ddd/.local/share/applications/antigravity-ide.desktop', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'PAGER': 'cat', 'MANAGERPID': '2546', 'GLFW_IM_MODULE': 'ibus', 'SYSTEMD_EXEC_PID': '2938', 'GSM_SKIP_SSH_AGENT_WORKAROUND': 'true', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'LIBVIRT_DEFAULT_URI': 'qemu:///system', 'ANTIGRAVITY_AGENT': '1', 'GIO_LAUNCHED_DESKTOP_FILE_PID': '6291', 'DEBUGINFOD_URLS': 'https://debuginfod.ubuntu.com', 'GTK_IM_MODULE': 'fcitx', 'LOGNAME': 'ddd', '_': '/usr/bin/colcon', 'JOURNAL_STREAM': '9:25976', 'MEMORY_PRESSURE_WATCH': '/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@x11.service/memory.pressure', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'ddd', 'TERM': 'dumb', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'FC_FONTATIONS': '1', 'WINDOWPATH': '2', 'ANTIGRAVITY_EDITOR_APP_ROOT': '/opt/antigravity-ide/resources/app', 'PATH': '/home/ddd/.gemini/antigravity-ide/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/ddd/.local/share/JetBrains/Toolbox/scripts', 'SESSION_MANAGER': 'local/ddd:@/tmp/.ICE-unix/2905,unix/ddd:/tmp/.ICE-unix/2905', 'INVOCATION_ID': '0a65bbc411644699ba88e3c4ef37cec5', 'XDG_MENU_PREFIX': 'gnome-', 'XDG_RUNTIME_DIR': '/run/user/1000', 'GDK_BACKEND': 'x11', 'DISPLAY': ':1', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'XMODIFIERS': '@im=fcitx', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/gdm/Xauthority', 'SBX_CHROME_API_RQ': '1', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'AMENT_PREFIX_PATH': '/home/ddd/ros2_ws/install/my_robot_arm_moveit_config:/home/ddd/ros2_ws/install/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_description', 'SHELL': '/bin/bash', 'ANTIGRAVITY_LS_ADDRESS': 'localhost:39547', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'GPG_AGENT_INFO': '/run/user/1000/gnupg/S.gpg-agent:0:1', 'GJS_DEBUG_OUTPUT': 'stderr', 'GIT_PAGER': 'cat', 'QT_IM_MODULE': 'fcitx', 'ANTIGRAVITY_TRAJECTORY_ID': '5f7a4798-bf92-44a7-a3d1-11d9ac2043e9', 'PWD': '/home/ddd/ros2_ws/build/my_robot_arm_pick_place', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'VSCODE_CODE_CACHE_PATH': '/home/ddd/.config/Antigravity IDE/CachedData/e0b7a2bcf575cfba10528c4e7c10bd3ce2d7769a', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/share/gnome:/home/ddd/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'QTWEBENGINE_DICTIONARIES_PATH': '/usr/share/hunspell-bdic/', 'PYTHONPATH': '/home/ddd/ros2_ws/build/my_robot_arm_pick_place/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_moveit_config:/home/ddd/ros2_ws/install/my_robot_arm_moveit_config/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_control/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_description:/home/ddd/ros2_ws/install/my_robot_arm_description/lib/python3.12/site-packages', 'GTK_USE_PORTAL': '1', 'COLCON': '1', 'QT_IM_MODULES': 'wayland;fcitx', 'MEMORY_PRESSURE_WRITE': 'c29tZSAyMDAwMDAgMjAwMDAwMAA=', 'ANTIGRAVITY_CSRF_TOKEN': 'de5136d3-3550-4c95-a581-3cb0578226b8', 'VSCODE_PID': '6291'}, 'shell': False}
+[1.504082] (-) TimerEvent: {}
+[1.604332] (-) TimerEvent: {}
+[1.704637] (-) TimerEvent: {}
+[1.798117] (my_robot_arm_pick_place) StdoutLine: {'line': b'running develop\n'}
+[1.804758] (-) TimerEvent: {}
+[1.905102] (-) TimerEvent: {}
+[1.971586] (my_robot_arm_pick_place) StdoutLine: {'line': b'running egg_info\n'}
+[1.987440] (my_robot_arm_pick_place) StdoutLine: {'line': b'writing my_robot_arm_pick_place.egg-info/PKG-INFO\n'}
+[1.987841] (my_robot_arm_pick_place) StdoutLine: {'line': b'writing dependency_links to my_robot_arm_pick_place.egg-info/dependency_links.txt\n'}
+[1.988149] (my_robot_arm_pick_place) StdoutLine: {'line': b'writing entry points to my_robot_arm_pick_place.egg-info/entry_points.txt\n'}
+[1.988344] (my_robot_arm_pick_place) StdoutLine: {'line': b'writing requirements to my_robot_arm_pick_place.egg-info/requires.txt\n'}
+[1.988511] (my_robot_arm_pick_place) StdoutLine: {'line': b'writing top-level names to my_robot_arm_pick_place.egg-info/top_level.txt\n'}
+[2.005204] (-) TimerEvent: {}
+[2.017359] (my_robot_arm_pick_place) StdoutLine: {'line': b"reading manifest file 'my_robot_arm_pick_place.egg-info/SOURCES.txt'\n"}
+[2.018290] (my_robot_arm_pick_place) StdoutLine: {'line': b"writing manifest file 'my_robot_arm_pick_place.egg-info/SOURCES.txt'\n"}
+[2.036059] (my_robot_arm_pick_place) StdoutLine: {'line': b'running build_ext\n'}
+[2.036343] (my_robot_arm_pick_place) StdoutLine: {'line': b'Creating /home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/python3.12/site-packages/my-robot-arm-pick-place.egg-link (link to .)\n'}
+[2.037182] (my_robot_arm_pick_place) StdoutLine: {'line': b'Installing pick_place_node script to /home/ddd/ros2_ws/install/my_robot_arm_pick_place/lib/my_robot_arm_pick_place\n'}
+[2.037552] (my_robot_arm_pick_place) StdoutLine: {'line': b'\n'}
+[2.037724] (my_robot_arm_pick_place) StdoutLine: {'line': b'Installed /home/ddd/ros2_ws/build/my_robot_arm_pick_place\n'}
+[2.037825] (my_robot_arm_pick_place) StdoutLine: {'line': b'running symlink_data\n'}
+[2.100021] (my_robot_arm_pick_place) CommandEnded: {'returncode': 0}
+[2.105296] (-) TimerEvent: {}
+[2.114646] (my_robot_arm_pick_place) JobEnded: {'identifier': 'my_robot_arm_pick_place', 'rc': 0}
+[2.115567] (-) EventReactorShutdown: {}

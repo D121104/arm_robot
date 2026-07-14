@@ -1,0 +1,20 @@
+running develop
+running egg_info
+writing my_robot_arm_moveit_config.egg-info/PKG-INFO
+writing dependency_links to my_robot_arm_moveit_config.egg-info/dependency_links.txt
+writing requirements to my_robot_arm_moveit_config.egg-info/requires.txt
+writing top-level names to my_robot_arm_moveit_config.egg-info/top_level.txt
+reading manifest file 'my_robot_arm_moveit_config.egg-info/SOURCES.txt'
+writing manifest file 'my_robot_arm_moveit_config.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/ddd/ros2_ws/install/my_robot_arm_moveit_config/lib/python3.12/site-packages/my-robot-arm-moveit-config.egg-link (link to .)
+
+Installed /home/ddd/ros2_ws/build/my_robot_arm_moveit_config
+running symlink_data
+symbolically linking /home/ddd/ros2_ws/build/my_robot_arm_moveit_config/resource/my_robot_arm_moveit_config -> /home/ddd/ros2_ws/install/my_robot_arm_moveit_config/share/ament_index/resource_index/packages
+symbolically linking /home/ddd/ros2_ws/build/my_robot_arm_moveit_config/package.xml -> /home/ddd/ros2_ws/install/my_robot_arm_moveit_config/share/my_robot_arm_moveit_config
+symbolically linking /home/ddd/ros2_ws/build/my_robot_arm_moveit_config/launch/moveit.launch.py -> /home/ddd/ros2_ws/install/my_robot_arm_moveit_config/share/my_robot_arm_moveit_config/launch
+symbolically linking /home/ddd/ros2_ws/build/my_robot_arm_moveit_config/config/moveit_controllers.yaml -> /home/ddd/ros2_ws/install/my_robot_arm_moveit_config/share/my_robot_arm_moveit_config/config
+symbolically linking /home/ddd/ros2_ws/build/my_robot_arm_moveit_config/config/kinematics.yaml -> /home/ddd/ros2_ws/install/my_robot_arm_moveit_config/share/my_robot_arm_moveit_config/config
+symbolically linking /home/ddd/ros2_ws/build/my_robot_arm_moveit_config/config/panda.srdf -> /home/ddd/ros2_ws/install/my_robot_arm_moveit_config/share/my_robot_arm_moveit_config/config
+symbolically linking /home/ddd/ros2_ws/build/my_robot_arm_moveit_config/rviz/moveit.rviz -> /home/ddd/ros2_ws/install/my_robot_arm_moveit_config/share/my_robot_arm_moveit_config/rviz

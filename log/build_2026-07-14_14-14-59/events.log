@@ -1,0 +1,74 @@
+[0.000000] (-) TimerEvent: {}
+[0.000261] (-) JobUnselected: {'identifier': 'my_robot'}
+[0.000608] (-) JobUnselected: {'identifier': 'my_robot_arm_control'}
+[0.001330] (-) JobUnselected: {'identifier': 'my_robot_arm_description'}
+[0.001377] (-) JobUnselected: {'identifier': 'my_robot_arm_gazebo'}
+[0.001402] (-) JobUnselected: {'identifier': 'my_robot_arm_pick_place'}
+[0.001422] (-) JobUnselected: {'identifier': 'my_robot_description'}
+[0.001441] (-) JobUnselected: {'identifier': 'my_service'}
+[0.001462] (my_robot_arm_moveit_config) JobQueued: {'identifier': 'my_robot_arm_moveit_config', 'dependencies': OrderedDict({'my_robot_arm_description': '/home/ddd/ros2_ws/install/my_robot_arm_description', 'my_robot_arm_control': '/home/ddd/ros2_ws/install/my_robot_arm_control'})}
+[0.001503] (my_robot_arm_moveit_config) JobStarted: {'identifier': 'my_robot_arm_moveit_config'}
+[0.099465] (-) TimerEvent: {}
+[0.199882] (-) TimerEvent: {}
+[0.300247] (-) TimerEvent: {}
+[0.400541] (-) TimerEvent: {}
+[0.500897] (-) TimerEvent: {}
+[0.601283] (-) TimerEvent: {}
+[0.701639] (-) TimerEvent: {}
+[0.802006] (-) TimerEvent: {}
+[0.902421] (-) TimerEvent: {}
+[1.002768] (-) TimerEvent: {}
+[1.103089] (-) TimerEvent: {}
+[1.203427] (-) TimerEvent: {}
+[1.303756] (-) TimerEvent: {}
+[1.404352] (-) TimerEvent: {}
+[1.504730] (-) TimerEvent: {}
+[1.605089] (-) TimerEvent: {}
+[1.705508] (-) TimerEvent: {}
+[1.805888] (-) TimerEvent: {}
+[1.906315] (-) TimerEvent: {}
+[2.006680] (-) TimerEvent: {}
+[2.107148] (-) TimerEvent: {}
+[2.207545] (-) TimerEvent: {}
+[2.307904] (-) TimerEvent: {}
+[2.408307] (-) TimerEvent: {}
+[2.508664] (-) TimerEvent: {}
+[2.609009] (-) TimerEvent: {}
+[2.709406] (-) TimerEvent: {}
+[2.809675] (-) TimerEvent: {}
+[2.910011] (-) TimerEvent: {}
+[2.962950] (my_robot_arm_moveit_config) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--editable', '--build-directory', '/home/ddd/ros2_ws/build/my_robot_arm_moveit_config/build', '--no-deps', 'symlink_data'], 'cwd': '/home/ddd/ros2_ws/build/my_robot_arm_moveit_config', 'env': {'GJS_DEBUG_TOPICS': 'JS ERROR;JS LOG', 'VSCODE_CWD': '/home/ddd', 'GZ_SIM_RESOURCE_PATH': '/opt/ros/jazzy/share', 'USER': 'ddd', 'ANTIGRAVITY_SOURCE_METADATA': '{"tool":{"conversationId":"e258dfad-07f3-4ebe-8a33-49c6f545d256","stepIndex":454,"toolCall":{"id":"8mmacx51","name":"run_command","argumentsJson":"{\\"CommandLine\\":\\"source /opt/ros/jazzy/setup.bash \\\\u0026\\\\u0026 colcon build --packages-select my_robot_arm_moveit_config --symlink-install\\",\\"Cwd\\":\\"/home/ddd/ros2_ws\\",\\"WaitMsBeforeAsync\\":3000,\\"toolAction\\":\\"Building moveit config package after updating gripper action namespace\\",\\"toolSummary\\":\\"Build moveit config package\\"}","thinkingSignature":"Et0CCtoCARFNMg8UzTIOiP8ZKgwx1TYJi9Ee6ejFxwx9XQE1GZVs4/sXpawgo1mOzBB1F9BdxjkiboCzYmqBxBPHhun8axjZGl4/PTstWSfFFasNo08aHmPqIVItGNDnywU3Gnd31XAStBmIU5MpisbKA1TEdEptnFIIOha2xUXlhikjjbRXZIIhoOmP2Z7FfQ82WUWo+gQ/BJ5bOAkeDoITI6vkOSJcQu/+CVMy9FD4iogBH+aJYjixpbN25MvbbVFtcPbzaDdu8cBNYMEymcTncpp02anKEppaTJlVJvuzZ1VuTKfdlo/+5yZlU7raId77FOFCmyLJ4yzIwb/rNZqOtze8ZmUFPUDNlByX4lNUFot3mgGy5lLIosyUeH/bbh8U2+nMRVV2Stv2JN1C8pT0G7dW/V0WO7d9ePaGhHNLdKGYmRlvxQ2ZwWDPhXoSylVdvUmj4Vgs5Jxchjccvw==","originalName":"run_command"}}}', 'VSCODE_NLS_CONFIG': '{"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"/opt/antigravity-ide/resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}', 'GZ_CONFIG_PATH': '/opt/ros/jazzy/opt/gz_sim_vendor/share/gz:/opt/ros/jazzy/opt/sdformat_vendor/share/gz:/opt/ros/jazzy/opt/gz_gui_vendor/share/gz:/opt/ros/jazzy/opt/gz_transport_vendor/share/gz:/opt/ros/jazzy/opt/gz_rendering_vendor/share/gz:/opt/ros/jazzy/opt/gz_plugin_vendor/share/gz:/opt/ros/jazzy/opt/gz_fuel_tools_vendor/share/gz:/opt/ros/jazzy/opt/gz_msgs_vendor/share/gz:/opt/ros/jazzy/opt/gz_common_vendor/share/gz', 'XDG_SESSION_TYPE': 'x11', 'CLUTTER_DISABLE_MIPMAPPED_TEXT': '1', 'SHLVL': '0', 'LD_LIBRARY_PATH': '/opt/ros/jazzy/opt/gz_sim_vendor/lib:/opt/ros/jazzy/opt/gz_sensors_vendor/lib:/opt/ros/jazzy/opt/gz_physics_vendor/lib:/opt/ros/jazzy/opt/sdformat_vendor/lib:/opt/ros/jazzy/opt/rviz_ogre_vendor/lib:/opt/ros/jazzy/lib/x86_64-linux-gnu:/opt/ros/jazzy/opt/gz_gui_vendor/lib:/opt/ros/jazzy/opt/gz_transport_vendor/lib:/opt/ros/jazzy/opt/gz_rendering_vendor/lib:/opt/ros/jazzy/opt/gz_plugin_vendor/lib:/opt/ros/jazzy/opt/gz_fuel_tools_vendor/lib:/opt/ros/jazzy/opt/gz_msgs_vendor/lib:/opt/ros/jazzy/opt/gz_common_vendor/lib:/opt/ros/jazzy/opt/gz_math_vendor/lib:/opt/ros/jazzy/opt/gz_utils_vendor/lib:/opt/ros/jazzy/opt/gz_tools_vendor/lib:/opt/ros/jazzy/opt/gz_ogre_next_vendor/lib:/opt/ros/jazzy/opt/gz_dartsim_vendor/lib:/opt/ros/jazzy/opt/gz_cmake_vendor/lib:/opt/ros/jazzy/lib', 'HOME': '/home/ddd', 'CHROME_DESKTOP': 'antigravity-ide.desktop', 'DESKTOP_SESSION': 'ubuntu', 'VSCODE_IPC_HOOK': '/run/user/1000/vscode-f23ff601-1.10-main.sock', 'GIO_LAUNCHED_DESKTOP_FILE': '/home/ddd/.local/share/applications/antigravity-ide.desktop', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'PAGER': 'cat', 'MANAGERPID': '2546', 'GLFW_IM_MODULE': 'ibus', 'SYSTEMD_EXEC_PID': '2938', 'GSM_SKIP_SSH_AGENT_WORKAROUND': 'true', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'LIBVIRT_DEFAULT_URI': 'qemu:///system', 'ANTIGRAVITY_AGENT': '1', 'GIO_LAUNCHED_DESKTOP_FILE_PID': '6291', 'DEBUGINFOD_URLS': 'https://debuginfod.ubuntu.com', 'ROS_DISTRO': 'jazzy', 'GTK_IM_MODULE': 'fcitx', 'LOGNAME': 'ddd', 'JOURNAL_STREAM': '9:25976', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'MEMORY_PRESSURE_WATCH': '/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@x11.service/memory.pressure', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'ddd', 'TERM': 'dumb', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'FC_FONTATIONS': '1', 'WINDOWPATH': '2', 'ANTIGRAVITY_EDITOR_APP_ROOT': '/opt/antigravity-ide/resources/app', 'PATH': '/opt/ros/jazzy/opt/gz_msgs_vendor/bin:/opt/ros/jazzy/opt/gz_tools_vendor/bin:/opt/ros/jazzy/opt/gz_ogre_next_vendor/bin:/opt/ros/jazzy/bin:/home/ddd/.gemini/antigravity-ide/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/ddd/.local/share/JetBrains/Toolbox/scripts', 'SESSION_MANAGER': 'local/ddd:@/tmp/.ICE-unix/2905,unix/ddd:/tmp/.ICE-unix/2905', 'INVOCATION_ID': '0a65bbc411644699ba88e3c4ef37cec5', 'XDG_MENU_PREFIX': 'gnome-', 'XDG_RUNTIME_DIR': '/run/user/1000', 'GDK_BACKEND': 'x11', 'DISPLAY': ':1', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'XMODIFIERS': '@im=fcitx', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/gdm/Xauthority', 'SBX_CHROME_API_RQ': '1', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'AMENT_PREFIX_PATH': '/home/ddd/ros2_ws/install/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_description:/opt/ros/jazzy', 'SHELL': '/bin/bash', 'ANTIGRAVITY_LS_ADDRESS': 'localhost:39547', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'GPG_AGENT_INFO': '/run/user/1000/gnupg/S.gpg-agent:0:1', 'GJS_DEBUG_OUTPUT': 'stderr', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'GIT_PAGER': 'cat', 'QT_IM_MODULE': 'fcitx', 'ANTIGRAVITY_TRAJECTORY_ID': '5f7a4798-bf92-44a7-a3d1-11d9ac2043e9', 'PWD': '/home/ddd/ros2_ws/build/my_robot_arm_moveit_config', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'VSCODE_CODE_CACHE_PATH': '/home/ddd/.config/Antigravity IDE/CachedData/e0b7a2bcf575cfba10528c4e7c10bd3ce2d7769a', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/share/gnome:/home/ddd/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'QTWEBENGINE_DICTIONARIES_PATH': '/usr/share/hunspell-bdic/', 'PYTHONPATH': '/home/ddd/ros2_ws/build/my_robot_arm_moveit_config/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ddd/ros2_ws/install/my_robot_arm_moveit_config/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_control:/home/ddd/ros2_ws/install/my_robot_arm_control/lib/python3.12/site-packages:/home/ddd/ros2_ws/build/my_robot_arm_description:/home/ddd/ros2_ws/install/my_robot_arm_description/lib/python3.12/site-packages:/opt/ros/jazzy/lib/python3.12/site-packages', 'GTK_USE_PORTAL': '1', 'COLCON': '1', 'QT_IM_MODULES': 'wayland;fcitx', 'MEMORY_PRESSURE_WRITE': 'c29tZSAyMDAwMDAgMjAwMDAwMAA=', 'ANTIGRAVITY_CSRF_TOKEN': 'de5136d3-3550-4c95-a581-3cb0578226b8', 'CMAKE_PREFIX_PATH': '/opt/ros/jazzy/opt/gz_sim_vendor:/opt/ros/jazzy/opt/gz_sensors_vendor:/opt/ros/jazzy/opt/gz_physics_vendor:/opt/ros/jazzy/opt/sdformat_vendor:/opt/ros/jazzy/opt/gz_gui_vendor:/opt/ros/jazzy/opt/gz_transport_vendor:/opt/ros/jazzy/opt/gz_rendering_vendor:/opt/ros/jazzy/opt/gz_plugin_vendor:/opt/ros/jazzy/opt/gz_fuel_tools_vendor:/opt/ros/jazzy/opt/gz_msgs_vendor:/opt/ros/jazzy/opt/gz_common_vendor:/opt/ros/jazzy/opt/gz_math_vendor:/opt/ros/jazzy/opt/gz_utils_vendor:/opt/ros/jazzy/opt/gz_tools_vendor:/opt/ros/jazzy/opt/gz_ogre_next_vendor:/opt/ros/jazzy/opt/gz_dartsim_vendor:/opt/ros/jazzy/opt/gz_cmake_vendor', 'VSCODE_PID': '6291'}, 'shell': False}
+[3.010100] (-) TimerEvent: {}
+[3.110443] (-) TimerEvent: {}
+[3.210906] (-) TimerEvent: {}
+[3.311250] (-) TimerEvent: {}
+[3.411578] (-) TimerEvent: {}
+[3.512014] (-) TimerEvent: {}
+[3.612379] (-) TimerEvent: {}
+[3.712737] (-) TimerEvent: {}
+[3.813099] (-) TimerEvent: {}
+[3.820151] (my_robot_arm_moveit_config) StdoutLine: {'line': b'running develop\n'}
+[3.913219] (-) TimerEvent: {}
+[4.013636] (-) TimerEvent: {}
+[4.114014] (-) TimerEvent: {}
+[4.214417] (-) TimerEvent: {}
+[4.314814] (-) TimerEvent: {}
+[4.372800] (my_robot_arm_moveit_config) StdoutLine: {'line': b'running egg_info\n'}
+[4.414916] (-) TimerEvent: {}
+[4.423804] (my_robot_arm_moveit_config) StdoutLine: {'line': b'writing my_robot_arm_moveit_config.egg-info/PKG-INFO\n'}
+[4.424507] (my_robot_arm_moveit_config) StdoutLine: {'line': b'writing dependency_links to my_robot_arm_moveit_config.egg-info/dependency_links.txt\n'}
+[4.425147] (my_robot_arm_moveit_config) StdoutLine: {'line': b'writing requirements to my_robot_arm_moveit_config.egg-info/requires.txt\n'}
+[4.425539] (my_robot_arm_moveit_config) StdoutLine: {'line': b'writing top-level names to my_robot_arm_moveit_config.egg-info/top_level.txt\n'}
+[4.515018] (-) TimerEvent: {}
+[4.538731] (my_robot_arm_moveit_config) StdoutLine: {'line': b"reading manifest file 'my_robot_arm_moveit_config.egg-info/SOURCES.txt'\n"}
+[4.540954] (my_robot_arm_moveit_config) StdoutLine: {'line': b"writing manifest file 'my_robot_arm_moveit_config.egg-info/SOURCES.txt'\n"}
+[4.599842] (my_robot_arm_moveit_config) StdoutLine: {'line': b'running build_ext\n'}
+[4.600265] (my_robot_arm_moveit_config) StdoutLine: {'line': b'Creating /home/ddd/ros2_ws/install/my_robot_arm_moveit_config/lib/python3.12/site-packages/my-robot-arm-moveit-config.egg-link (link to .)\n'}
+[4.601428] (my_robot_arm_moveit_config) StdoutLine: {'line': b'\n'}
+[4.601725] (my_robot_arm_moveit_config) StdoutLine: {'line': b'Installed /home/ddd/ros2_ws/build/my_robot_arm_moveit_config\n'}
+[4.601898] (my_robot_arm_moveit_config) StdoutLine: {'line': b'running symlink_data\n'}
+[4.615150] (-) TimerEvent: {}
+[4.698560] (my_robot_arm_moveit_config) CommandEnded: {'returncode': 0}
+[4.715333] (-) TimerEvent: {}
+[4.724660] (my_robot_arm_moveit_config) JobEnded: {'identifier': 'my_robot_arm_moveit_config', 'rc': 0}
+[4.726221] (-) EventReactorShutdown: {}

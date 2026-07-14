@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda">
+    <!-- Arguments -->
+    <xacro:arg name="initial_positions_file" default="$(find my_robot_arm_description)/config/initial_positions.yaml" />
+    <xacro:arg name="ros2_control_hardware_type" default="mock_components" />
+    <xacro:arg name="parameters_file" default="" />
+
+    <!-- Import Panda URDF (meshes, links, joints) from moveit_resources -->
+    <xacro:include filename="$(find moveit_resources_panda_description)/urdf/panda.urdf.xacro" />
+
+    <!-- Import ros2_control configuration -->
+    <xacro:include filename="$(find my_robot_arm_description)/urdf/panda_arm.ros2_control.xacro" />
+    <xacro:include filename="$(find my_robot_arm_description)/urdf/panda_hand.ros2_control.xacro" />
+
+    <!-- Instantiate ros2_control hardware -->
+    <xacro:panda_ros2_control
+        name="PandaArmSystem"
+        initial_positions_file="$(arg initial_positions_file)"
+        ros2_control_hardware_type="$(arg ros2_control_hardware_type)"
+        parameters_file="$(arg parameters_file)" />
+
+    <xacro:panda_hand_ros2_control
+        name="PandaHandSystem"
+        ros2_control_hardware_type="$(arg ros2_control_hardware_type)" />
+
+    <!-- Link to world and fixed joint -->
+    <link name="world" />
+    <joint name="panda_joint_world" type="fixed">
+        <parent link="world" />
+        <child link="panda_link0" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+
+    <!-- Gazebo Sim Control Plugin -->
+    <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'gz_ros2_control'}">
+        <gazebo>
+            <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <parameters>$(arg parameters_file)</parameters>
+            </plugin>
+        </gazebo>
+    </xacro:if>
+
+</robot>

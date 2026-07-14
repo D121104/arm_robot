@@ -1,0 +1,108 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/ddd/ros2_ws/build/my_robot_description/.pytest_cache
+rootdir: /home/ddd/ros2_ws/src/my_robot_description
+plugins: ament-pep257-0.17.5, ament-copyright-0.17.5, ament-xmllint-0.17.5, ament-flake8-0.17.5, ament-lint-0.17.5, launch-testing-ros-0.26.12, launch-testing-3.4.11, cov-4.1.0, colcon-core-0.21.0
+collecting ... 
+collected 3 items                                                              
+
+test/test_copyright.py s                                                 [ 33%]
+test/test_flake8.py F                                                    [ 66%]
+test/test_pep257.py .                                                    [100%]
+
+=================================== FAILURES ===================================
+_________________________________ test_flake8 __________________________________
+test/test_flake8.py:23: in test_flake8
+    assert rc == 0, \
+E   AssertionError: Found 13 code style errors / warnings:
+E     ./launch/display.launch.py:6:1: I100 Import statements are in the wrong order. 'from ament_index_python.packages import get_package_share_directory' should be before 'from launch_ros.actions import Node'
+E     ./launch/display.launch.py:12:9: Q000 Double quotes found but single quotes preferred
+E     ./launch/display.launch.py:17:9: Q000 Double quotes found but single quotes preferred
+E     ./launch/display.launch.py:18:9: Q000 Double quotes found but single quotes preferred
+E     ./launch/display.launch.py:24:21: Q000 Double quotes found but single quotes preferred
+E     ./launch/display.launch.py:25:24: Q000 Double quotes found but single quotes preferred
+E     ./launch/display.launch.py:28:21: Q000 Double quotes found but single quotes preferred
+E     ./launch/display.launch.py:34:21: Q000 Double quotes found but single quotes preferred
+E     ./launch/display.launch.py:35:24: Q000 Double quotes found but single quotes preferred
+E     ./launch/display.launch.py:39:21: Q000 Double quotes found but single quotes preferred
+E     ./launch/display.launch.py:40:24: Q000 Double quotes found but single quotes preferred
+E     ./launch/display.launch.py:43:7: W292 no newline at end of file
+E     ./setup.py:3:1: I201 Missing newline between import groups. 'from setuptools import find_packages, setup' is identified as Third Party and 'import os' is identified as Stdlib.
+E   assert 1 == 0
+----------------------------- Captured stdout call -----------------------------
+
+./launch/display.launch.py:6:1: I100 Import statements are in the wrong order. 'from ament_index_python.packages import get_package_share_directory' should be before 'from launch_ros.actions import Node'
+from ament_index_python.packages import get_package_share_directory
+^
+
+./launch/display.launch.py:12:9: Q000 Double quotes found but single quotes preferred
+        "my_robot_description"
+        ^
+
+./launch/display.launch.py:17:9: Q000 Double quotes found but single quotes preferred
+        "urdf",
+        ^
+
+./launch/display.launch.py:18:9: Q000 Double quotes found but single quotes preferred
+        "my_robot.urdf"
+        ^
+
+./launch/display.launch.py:24:21: Q000 Double quotes found but single quotes preferred
+            package="robot_state_publisher",
+                    ^
+
+./launch/display.launch.py:25:24: Q000 Double quotes found but single quotes preferred
+            executable="robot_state_publisher",
+                       ^
+
+./launch/display.launch.py:28:21: Q000 Double quotes found but single quotes preferred
+                    "robot_description": open(urdf_path).read()
+                    ^
+
+./launch/display.launch.py:34:21: Q000 Double quotes found but single quotes preferred
+            package="joint_state_publisher_gui",
+                    ^
+
+./launch/display.launch.py:35:24: Q000 Double quotes found but single quotes preferred
+            executable="joint_state_publisher_gui"
+                       ^
+
+./launch/display.launch.py:39:21: Q000 Double quotes found but single quotes preferred
+            package="rviz2",
+                    ^
+
+./launch/display.launch.py:40:24: Q000 Double quotes found but single quotes preferred
+            executable="rviz2"
+                       ^
+
+./launch/display.launch.py:43:7: W292 no newline at end of file
+    ])      ^
+
+./setup.py:3:1: I201 Missing newline between import groups. 'from setuptools import find_packages, setup' is identified as Third Party and 'import os' is identified as Stdlib.
+from setuptools import find_packages, setup
+^
+
+1     I100 Import statements are in the wrong order. 'from ament_index_python.packages import get_package_share_directory' should be before 'from launch_ros.actions import Node'
+1     I201 Missing newline between import groups. 'from setuptools import find_packages, setup' is identified as Third Party and 'import os' is identified as Stdlib.
+10    Q000 Double quotes found but single quotes preferred
+1     W292 no newline at end of file
+
+6 files checked
+13 errors
+
+'I'-type errors: 2
+'Q'-type errors: 10
+'W'-type errors: 1
+
+Checked files:
+
+* ./setup.py
+* ./launch/display.launch.py
+* ./my_robot_description/__init__.py
+* ./test/test_copyright.py
+* ./test/test_flake8.py
+* ./test/test_pep257.py
+- generated xml file: /home/ddd/ros2_ws/build/my_robot_description/pytest.xml --
+=========================== short test summary info ============================
+FAILED test/test_flake8.py::test_flake8 - AssertionError: Found 13 code style...
+==================== 1 failed, 1 passed, 1 skipped in 0.25s ====================

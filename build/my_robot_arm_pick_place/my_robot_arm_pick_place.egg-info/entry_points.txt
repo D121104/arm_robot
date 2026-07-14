@@ -1,0 +1,2 @@
+[console_scripts]
+pick_place_node = my_robot_arm_pick_place.pick_place_node:main
