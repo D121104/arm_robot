@@ -42,10 +42,10 @@ class PickPlaceNode(Node):
         self.declare_parameter('gripper_effort', 10.0)
         self.declare_parameter('pick_position.x', 0.5)
         self.declare_parameter('pick_position.y', 0.0)
-        self.declare_parameter('pick_position.z', 0.455)
+        self.declare_parameter('pick_position.z', 0.445)
         self.declare_parameter('place_position.x', 0.5)
         self.declare_parameter('place_position.y', 0.3)
-        self.declare_parameter('place_position.z', 0.455)
+        self.declare_parameter('place_position.z', 0.445)
         self.declare_parameter('pick_orientation.x', 1.0)
         self.declare_parameter('pick_orientation.y', 0.0)
         self.declare_parameter('pick_orientation.z', 0.0)
@@ -177,7 +177,7 @@ class PickPlaceNode(Node):
         pose_goal.pose.orientation.w = ow
 
         self.arm.set_start_state_to_current_state()
-        self.arm.set_goal_state(pose_stamped_msg=pose_goal, pose_link='panda_hand')
+        self.arm.set_goal_state(pose_stamped_msg=pose_goal, pose_link='panda_link8')
 
         plan_result = self.arm.plan()
         if plan_result:
@@ -198,7 +198,7 @@ class PickPlaceNode(Node):
         plan_result = self.gripper.plan()
         if plan_result:
             self.moveit.execute(plan_result.trajectory, controllers=[])
-            time.sleep(0.5)
+            time.sleep(1.0)
             return True
         self.get_logger().error(f'Gripper planning failed for state: {state_name}')
         return False
@@ -336,7 +336,7 @@ class PickPlaceNode(Node):
         # --- Step 5: Close gripper (grasp) ---
         self.get_logger().info('[5/11] Closing gripper to grasp object...')
         self.set_gripper('close')
-        time.sleep(0.5)
+        time.sleep(1.5)
 
         # --- Step 6: Retreat upward (post-grasp) ---
         post_pick_z = self.pick_z + self.retreat_h
@@ -373,48 +373,7 @@ class PickPlaceNode(Node):
         # --- Step 9: Open gripper (release) ---
         self.get_logger().info('[9/11] Opening gripper to release object...')
         self.set_gripper('open')
-        time.sleep(0.5)
-
-        # --- Step 10: Retreat upward ---
-        post_place_z = self.place_z + self.retreat_h
-        self.get_logger().info('[10/11] Retreating upward from place position...')
-        self.move_arm_to_pose(
-            self.place_x, self.place_y, post_place_z,
-            self.pick_ox, self.pick_oy, self.pick_oz, self.pick_ow,
-            label='post-place retreat'
-        )
-
-        # --- Step 11: Return to home ---
-        self.get_logger().info('[11/11] Returning to home position...')
-        self.move_arm_to_named_state('ready')
-
-        self.get_logger().info('=' * 60)
-        self.get_logger().info('Pick and Place Sequence COMPLETED SUCCESSFULLY!')
-        self.get_logger().info('=' * 60)
-        return True
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = PickPlaceNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-            self.place_x, self.place_y, self.place_z,
-            self.pick_ox, self.pick_oy, self.pick_oz, self.pick_ow,
-            label='place'
-        ):
-            self.get_logger().error('FAILED at step 8. Aborting.')
-            return False
-
-        # --- Step 9: Open gripper (release) ---
-        self.get_logger().info('[9/11] Opening gripper to release object...')
-        self.set_gripper('open')
-        time.sleep(0.5)
+        time.sleep(1.0)
 
         # --- Step 10: Retreat upward ---
         post_place_z = self.place_z + self.retreat_h

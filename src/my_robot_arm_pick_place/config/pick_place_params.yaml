@@ -25,13 +25,13 @@ pick_place_node:
     pick_position:
       x: 0.5
       y: 0.0
-      z: 0.455
+      z: 0.445
 
     # Place position (green zone marker on the table)
     place_position:
       x: 0.5
       y: 0.3
-      z: 0.455
+      z: 0.445
 
     # Orientation at pick/place (end-effector pointing downward)
     # quaternion: x, y, z, w

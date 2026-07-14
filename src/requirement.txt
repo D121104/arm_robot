@@ -1,1 +1,2 @@
-toi muon thuc hien 1 du an, tao 1 robot arm co nhan nhac vat the len den roi dat vao 1 vi tri bat ki, da biet truoc toa do, 
+hiện tại arm đang bị lỗi, khi chạy trong gabezo arm luôn rung lắc, không gắp được vật thể
+kiểm tra và fix lỗi cho tôi, sau đó chạy test để chắc chắn vật thể được gắp và di chuyển đến vị trí mới

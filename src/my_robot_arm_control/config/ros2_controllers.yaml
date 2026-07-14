@@ -1,7 +1,7 @@
 # ros2_control configuration for Panda arm
 controller_manager:
   ros__parameters:
-    update_rate: 100  # Hz
+    update_rate: 500  # Hz
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster

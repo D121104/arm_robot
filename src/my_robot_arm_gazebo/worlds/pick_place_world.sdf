@@ -85,14 +85,15 @@
 
     <!-- Pick object (red cube at pick position) -->
     <model name="pick_object">
-      <pose>0.5 0.0 0.455 0 0 0</pose>
+      <pose>0.5 0.0 0.445 0 0 0</pose>
       <link name="object_link">
         <inertial>
           <mass>0.1</mass>
           <inertia>
-            <ixx>0.000167</ixx>
-            <iyy>0.000167</iyy>
-            <izz>0.000167</izz>
+            <!-- Correct inertia for 0.04m cube: I = m/6 * s^2 = 0.1/6 * 0.0016 = 2.667e-5 -->
+            <ixx>0.0000267</ixx>
+            <iyy>0.0000267</iyy>
+            <izz>0.0000267</izz>
           </inertia>
         </inertial>
         <collision name="object_collision">
@@ -104,10 +105,18 @@
           <surface>
             <friction>
               <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
+                <mu>2.0</mu>
+                <mu2>2.0</mu2>
               </ode>
             </friction>
+            <contact>
+              <ode>
+                <kp>1e6</kp>
+                <kd>100</kd>
+                <max_vel>0.1</max_vel>
+                <min_depth>0.001</min_depth>
+              </ode>
+            </contact>
           </surface>
         </collision>
         <visual name="object_visual">

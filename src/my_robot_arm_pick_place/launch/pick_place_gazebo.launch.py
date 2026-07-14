@@ -109,6 +109,7 @@ def generate_launch_description():
             planning_pipelines,
             moveit_controllers,
             global_params,
+            {'use_sim_time': True},
         ],
     )
 
@@ -131,6 +132,7 @@ def generate_launch_description():
                     moveit_controllers,
                     pick_place_params['pick_place_node']['ros__parameters'],
                     global_params,
+                    {'use_sim_time': True},
                 ],
             )
         ],
