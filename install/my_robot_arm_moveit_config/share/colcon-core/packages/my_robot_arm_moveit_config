@@ -1,1 +1,0 @@
-controller_manager:moveit:moveit_kinematics:moveit_ros_move_group:moveit_ros_planning_interface:moveit_ros_visualization:moveit_simple_controller_manager:my_robot_arm_control:my_robot_arm_description:rclpy
