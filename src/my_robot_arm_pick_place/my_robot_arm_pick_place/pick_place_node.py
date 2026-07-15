@@ -135,8 +135,8 @@ class PickPlaceNode(Node):
 
         self.get_logger().info('MoveItPy initialized. Ready for pick and place.')
 
-        # Give time for everything to come up
-        time.sleep(2.0)
+        # Give time for controllers and move_group to fully initialize
+        time.sleep(5.0)
 
         # Start pick and place sequence in a separate thread to allow the ROS 2 executor to spin in the main thread
         import threading
@@ -148,14 +148,19 @@ class PickPlaceNode(Node):
     # ------------------------------------------------------------------
     def move_arm_to_named_state(self, state_name: str) -> bool:
         self.get_logger().info(f'Moving arm to named state: {state_name}')
-        self.arm.set_start_state_to_current_state()
-        self.arm.set_goal_state(configuration_name=state_name)
-        plan_result = self.arm.plan()
-        if plan_result:
-            robot_trajectory = plan_result.trajectory
-            self.moveit.execute(robot_trajectory, controllers=[])
-            return True
-        self.get_logger().error(f'Failed to plan to named state: {state_name}')
+        for attempt in range(3):
+            self.arm.set_start_state_to_current_state()
+            self.arm.set_goal_state(configuration_name=state_name)
+            plan_result = self.arm.plan()
+            if plan_result:
+                robot_trajectory = plan_result.trajectory
+                self.get_logger().info(f'Plan succeeded for {state_name} (attempt {attempt+1}). Executing...')
+                self.moveit.execute(robot_trajectory, controllers=["panda_arm_controller"])
+                time.sleep(1.0)
+                return True
+            self.get_logger().warn(f'Planning attempt {attempt+1}/3 failed for named state: {state_name}')
+            time.sleep(0.5)
+        self.get_logger().error(f'Failed to plan to named state after 3 attempts: {state_name}')
         return False
 
     # ------------------------------------------------------------------
@@ -176,16 +181,20 @@ class PickPlaceNode(Node):
         pose_goal.pose.orientation.z = oz
         pose_goal.pose.orientation.w = ow
 
-        self.arm.set_start_state_to_current_state()
-        self.arm.set_goal_state(pose_stamped_msg=pose_goal, pose_link='panda_link8')
+        for attempt in range(3):
+            self.arm.set_start_state_to_current_state()
+            self.arm.set_goal_state(pose_stamped_msg=pose_goal, pose_link='panda_link8')
 
-        plan_result = self.arm.plan()
-        if plan_result:
-            self.moveit.execute(plan_result.trajectory, controllers=[])
+            plan_result = self.arm.plan()
+            if plan_result:
+                self.get_logger().info(f'Plan succeeded for {label} (attempt {attempt+1}). Executing...')
+                self.moveit.execute(plan_result.trajectory, controllers=["panda_arm_controller"])
+                time.sleep(1.0)
+                return True
+            self.get_logger().warn(f'Planning attempt {attempt+1}/3 failed for {label}')
             time.sleep(0.5)
-            return True
 
-        self.get_logger().error(f'Planning failed for {label}')
+        self.get_logger().error(f'Planning failed for {label} after 3 attempts')
         return False
 
     # ------------------------------------------------------------------
@@ -193,14 +202,18 @@ class PickPlaceNode(Node):
     # ------------------------------------------------------------------
     def set_gripper(self, state_name: str) -> bool:
         self.get_logger().info(f'Setting gripper to: {state_name}')
-        self.gripper.set_start_state_to_current_state()
-        self.gripper.set_goal_state(configuration_name=state_name)
-        plan_result = self.gripper.plan()
-        if plan_result:
-            self.moveit.execute(plan_result.trajectory, controllers=[])
-            time.sleep(1.0)
-            return True
-        self.get_logger().error(f'Gripper planning failed for state: {state_name}')
+        for attempt in range(3):
+            self.gripper.set_start_state_to_current_state()
+            self.gripper.set_goal_state(configuration_name=state_name)
+            plan_result = self.gripper.plan()
+            if plan_result:
+                self.get_logger().info(f'Gripper plan succeeded for {state_name} (attempt {attempt+1}). Executing...')
+                self.moveit.execute(plan_result.trajectory, controllers=["panda_hand_controller"])
+                time.sleep(1.5)
+                return True
+            self.get_logger().warn(f'Gripper planning attempt {attempt+1}/3 failed for state: {state_name}')
+            time.sleep(0.5)
+        self.get_logger().error(f'Gripper planning failed after 3 attempts for state: {state_name}')
         return False
 
     # ------------------------------------------------------------------

@@ -1,1 +1,0 @@
-/home/ddd/ros2_ws/build/my_robot_arm_gazebo/launch/gazebo.launch.py

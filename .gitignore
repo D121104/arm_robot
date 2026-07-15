@@ -1,4 +1,63 @@
+<<<<<<< HEAD
 build
 install
 log
 src/requirement.txt
+=======
+# ROS 2 build and install directories
+build/
+install/
+log/
+src/build/
+src/install/
+src/log/
+**/build/
+**/install/
+**/log/
+
+# Python cache and build directories
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+**/.pytest_cache/
+.egg-info/
+*.egg-info/
+**/decoy/
+.eggs/
+**/eggs/
+.tox/
+.coverage
+.cache
+.hypothesis/
+
+# C/C++ compilation artifacts
+*.o
+*.a
+*.so
+*.out
+
+# Generated ROS / view_frames graphs and PDFs
+frames_*.gv
+frames_*.pdf
+*.gv
+*.pdf
+
+# IDE and Editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+>>>>>>> 4378cfdc8e996bee6334b11dff4ed75d851454c6
