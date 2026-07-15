@@ -25,7 +25,7 @@ from geometry_msgs.msg import Pose, PoseStamped
 from moveit.core.robot_state import RobotState
 from moveit.planning import MoveItPy, PlanningComponent
 import numpy as np
-
+from controller_manager_msgs.srv import SwitchController
 
 class PickPlaceNode(Node):
     """Node that performs autonomous pick and place using MoveIt 2."""
@@ -242,7 +242,7 @@ class PickPlaceNode(Node):
     # ------------------------------------------------------------------
     def reactivate_controllers(self):
         self.get_logger().info('Reactivating controllers...')
-        from controller_manager_msgs.srv import SwitchController
+        
         
         client = self.create_client(SwitchController, '/controller_manager/switch_controller')
         while not client.wait_for_service(timeout_sec=1.0):
@@ -257,7 +257,6 @@ class PickPlaceNode(Node):
         
         future = client.call_async(req)
         
-        import time
         start_time = time.time()
         while not future.done():
             time.sleep(0.1)

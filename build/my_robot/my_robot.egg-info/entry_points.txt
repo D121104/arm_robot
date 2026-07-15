@@ -1,3 +1,0 @@
-[console_scripts]
-publisher = my_robot.publisher:main
-subscriber = my_robot.subscriber:main

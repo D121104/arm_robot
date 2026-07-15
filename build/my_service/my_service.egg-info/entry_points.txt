@@ -1,3 +1,0 @@
-[console_scripts]
-client = my_service.client:main
-server = my_service.server:main
