@@ -497,12 +497,6 @@ class PickPlaceNode(Node):
 
     def _pick_and_place(self, task_object: TaskObject) -> bool:
         """Run a retryable physical grasp and non-teleporting placement cycle."""
-        grasp_orientation = (
-            self._yaw_to_topdown_quaternion(task_object.grasp_yaw)
-            if task_object.grasp_yaw != 0.0
-            else self.grasp_orientation
-        )
-        place_orientation = grasp_orientation
         grasp_pose = (
             task_object.pick_pose[0],
             task_object.pick_pose[1],
@@ -540,14 +534,14 @@ class PickPlaceNode(Node):
                 (
                     'pre-grasp',
                     lambda: self._move_pose(
-                        pick_above, grasp_orientation, 'pre-grasp'
+                        pick_above, self.grasp_orientation, 'pre-grasp'
                     ),
                 ),
                 ('ensure-open', lambda: self._gripper_named('open')),
                 (
                     'approach',
                     lambda: self._move_pose(
-                        grasp_pose, grasp_orientation, 'approach'
+                        grasp_pose, self.grasp_orientation, 'approach'
                     ),
                 ),
                 ('close', lambda: self._close_gripper_for(task_object)),
@@ -555,7 +549,7 @@ class PickPlaceNode(Node):
                 (
                     'lift',
                     lambda: self._move_pose(
-                        lift, grasp_orientation, 'lift'
+                        lift, self.grasp_orientation, 'lift'
                     ),
                 ),
                 (
@@ -566,20 +560,20 @@ class PickPlaceNode(Node):
                 (
                     'pre-place',
                     lambda: self._move_pose(
-                        place_above, place_orientation, 'pre-place'
+                        place_above, self.place_orientation, 'pre-place'
                     ),
                 ),
                 (
                     'lower',
                     lambda: self._move_pose(
-                        place_target, place_orientation, 'lower'
+                        place_target, self.place_orientation, 'lower'
                     ),
                 ),
                 ('release', lambda: self._gripper_named('open')),
                 (
                     'retreat',
                     lambda: self._move_pose(
-                        retreat, place_orientation, 'retreat'
+                        retreat, self.place_orientation, 'retreat'
                     ),
                 ),
             ]
@@ -591,7 +585,7 @@ class PickPlaceNode(Node):
                     )
                     self._gripper_named('open')
                     self._move_pose(
-                        pick_above, grasp_orientation, 'grasp recovery'
+                        pick_above, self.grasp_orientation, 'grasp recovery'
                     )
                     break
             else:
