@@ -64,6 +64,10 @@ class PickPlaceNode(Node):
             'left': set(),
             'right': set(),
         }
+        self._last_seen_contact: dict[str, dict[str, float]] = {
+            'left': {},
+            'right': {},
+        }
         self.create_subscription(
             Contacts,
             self.LEFT_CONTACT_TOPIC,
@@ -316,7 +320,10 @@ class PickPlaceNode(Node):
                     models.add(entity.name)
         with self._contact_lock:
             changed = models != self._last_contact_models[finger]
-            self._finger_contacts[finger] = (models, time.monotonic())
+            observed_at = time.monotonic()
+            self._finger_contacts[finger] = (models, observed_at)
+            for entity in models:
+                self._last_seen_contact[finger][entity] = observed_at
             self._last_contact_models[finger] = models
         if changed:
             entities = ', '.join(sorted(models)) if models else '<none>'
@@ -367,6 +374,31 @@ class PickPlaceNode(Node):
             )
         )
         return valid
+
+    def _has_recent_dual_contact(
+        self, task_object: TaskObject, grace: float = 0.75
+    ) -> bool:
+        """Accept brief sensor gaps only if both fingers recently saw the object."""
+        if self._has_dual_contact(task_object):
+            return True
+        now = time.monotonic()
+        expected = task_object.gazebo_model
+        with self._contact_lock:
+            ages = []
+            for finger in ('left', 'right'):
+                matches = [
+                    timestamp
+                    for entity, timestamp in self._last_seen_contact[finger].items()
+                    if expected in entity
+                ]
+                ages.append(now - max(matches) if matches else math.inf)
+        accepted = all(age <= grace for age in ages)
+        self.get_logger().warning(
+            'Contact grace %s: accepted=%s, left_last_seen_age=%.3fs, '
+            'right_last_seen_age=%.3fs, limit=%.3fs.'
+            % (task_object.object_id, accepted, ages[0], ages[1], grace)
+        )
+        return accepted
 
     def _wait_for_dual_contact(self, task_object: TaskObject) -> bool:
         """Wait until valid dual contact remains stable for the configured duration."""
@@ -532,7 +564,7 @@ class PickPlaceNode(Node):
                 waypoint, orientation, f'lift step {index}/{steps}'
             ):
                 return False
-            if not self._wait_for_dual_contact(task_object):
+            if not self._has_recent_dual_contact(task_object):
                 self.get_logger().error(
                     f'{task_object.object_id}: contact lost after lift step '
                     f'{index}/{steps}.'
@@ -665,6 +697,11 @@ class PickPlaceNode(Node):
             task_object.place_pose[1],
             place_z,
         )
+        transfer_midpoint = (
+            (lift[0] + place_above[0]) / 2.0,
+            (lift[1] + place_above[1]) / 2.0,
+            max(lift[2], place_above[2]),
+        )
         retreat = (
             task_object.place_pose[0],
             task_object.place_pose[1],
@@ -708,9 +745,21 @@ class PickPlaceNode(Node):
                     or self.planning_only,
                 ),
                 (
+                    'transfer-midpoint',
+                    lambda: self._move_pose(
+                        transfer_midpoint,
+                        object_orientation,
+                        'transfer midpoint',
+                    ),
+                ),
+                (
+                    'transfer-contact',
+                    lambda: self._has_recent_dual_contact(task_object),
+                ),
+                (
                     'pre-place',
                     lambda: self._move_pose(
-                        place_above, self.place_orientation, 'pre-place'
+                        place_above, object_orientation, 'pre-place'
                     ),
                 ),
                 (
@@ -731,10 +780,16 @@ class PickPlaceNode(Node):
                 ),
             ]
             for stage, operation in stages:
+                self.get_logger().info(
+                    f'{task_object.object_id}: starting stage={stage}, '
+                    f'grasp attempt={attempt}.'
+                )
+                stage_started = time.monotonic()
                 if not operation():
                     self.get_logger().error(
-                        f'{task_object.object_id}: failed at {stage}, '
-                        f'grasp attempt {attempt}.'
+                        f'{task_object.object_id}: failed at stage={stage}, '
+                        f'grasp attempt={attempt}, elapsed='
+                        f'{time.monotonic() - stage_started:.3f}s.'
                     )
                     self._gripper_named('open')
                     self._move_pose(
