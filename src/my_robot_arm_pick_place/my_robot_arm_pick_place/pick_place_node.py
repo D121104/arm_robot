@@ -155,8 +155,8 @@ class PickPlaceNode(Node):
             'tool_link': 'panda_link8',
             'use_physical_contacts': True,
             'planning_only': False,
-            'grasp_z_offset': 0.103,
-            'place_z_offset': 0.103,
+            'grasp_z_offset': 0.106,
+            'place_z_offset': 0.106,
             'approach_height': 0.10,
             'lift_height': 0.12,
             'place_approach_height': 0.10,
@@ -516,6 +516,7 @@ class PickPlaceNode(Node):
                         pick_above, self.grasp_orientation, 'pre-grasp'
                     ),
                 ),
+                ('ensure-open', lambda: self._gripper_named('open')),
                 (
                     'approach',
                     lambda: self._move_pose(
