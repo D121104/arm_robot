@@ -15,9 +15,8 @@ Hệ thống điều khiển cánh tay robot **Franka Emika Panda** thực hiệ
 - [Cài đặt](#-cài-đặt)
 - [Cấu trúc dự án](#-cấu-trúc-dự-án)
 - [Hướng dẫn chạy](#-hướng-dẫn-chạy)
-  - [Cách 1: Xem mô hình robot (RViz2)](#cách-1-xem-mô-hình-robot-rviz2)
-  - [Cách 2: Chạy Mock Hardware (không cần Gazebo)](#cách-2-chạy-mock-hardware-không-cần-gazebo)
-  - [Cách 3: Chạy trên Gazebo Sim (mô phỏng đầy đủ)](#cách-3-chạy-trên-gazebo-sim-mô-phỏng-đầy-đủ)
+  - [Xem mô hình robot (RViz2)](#xem-mô-hình-robot-rviz2)
+  - [Chạy Pick & Place](#chạy-pick--place)
 - [Tùy chỉnh tham số](#-tùy-chỉnh-tham-số)
 - [Quy trình Pick & Place](#-quy-trình-pick--place)
 
@@ -127,8 +126,7 @@ src/
     ├── config/
     │   └── pick_place_params.yaml
     └── launch/
-        ├── pick_place.launch.py
-        └── pick_place_gazebo.launch.py
+        └── pick_place.launch.py     # backend:=mock|gazebo
 ```
 
 ---
@@ -153,57 +151,37 @@ ros2 launch my_robot_arm_description display.launch.py
 
 ---
 
-### Cách 2: Chạy Mock Hardware (không cần Gazebo)
+### Chạy Pick & Place
 
-Chạy toàn bộ hệ thống trong chế độ giả lập — Controller Manager ảo tự phản hồi trạng thái:
+Cả mock hardware và Gazebo Sim dùng **một entrypoint**. Mặc định chạy một chu kỳ rồi dừng để việc debug an toàn và có thể tái lập.
 
-```bash
-ros2 launch my_robot_arm_pick_place pick_place.launch.py
-```
-
-**Kết quả:** Robot thực hiện chu trình Pick & Place bằng mô phỏng toán học (không có giao diện đồ họa Gazebo).
-
----
-
-### Cách 3: Chạy trên Gazebo Sim (mô phỏng đầy đủ)
-
-Đây là chế độ chính — robot sẽ di chuyển trực quan trong Gazebo và gắp khối hộp màu đỏ.
-
-#### Terminal 1 — Khởi động Gazebo + Robot + Controllers:
+#### Mock hardware (không cần Gazebo)
 
 ```bash
-ros2 launch my_robot_arm_gazebo gazebo.launch.py
+ros2 launch my_robot_arm_pick_place pick_place.launch.py backend:=mock
 ```
 
-Chờ cho đến khi:
-- ✅ Gazebo mở và hiển thị bàn gỗ + hộp đỏ + vùng xanh
-- ✅ Robot Panda xuất hiện trên bàn
-- ✅ Terminal hiện log "Successfully loaded and activated controller..."
+#### Gazebo Sim (mô phỏng đầy đủ)
 
-#### Terminal 2 — Chạy Pick & Place + MoveIt:
+Launch này tự khởi chạy Gazebo, robot, ros2_control, MoveIt và node Pick & Place trong cùng một lệnh:
 
 ```bash
-ros2 launch my_robot_arm_pick_place pick_place_gazebo.launch.py
+ros2 launch my_robot_arm_pick_place pick_place.launch.py backend:=gazebo
 ```
 
-**Kết quả:** Cánh tay robot sẽ tự động:
-1. Di chuyển về vị trí sẵn sàng (Ready Pose)
-2. Mở gripper
-3. Tiếp cận vật thể từ phía trên
-4. Hạ xuống gắp vật
-5. Nâng vật lên
-6. Di chuyển đến vùng xanh
-7. Đặt vật xuống
-8. Quay lại vị trí ban đầu
-9. Lặp lại chu trình
-
----
-
-### Chạy Gazebo headless (không GUI — tiết kiệm tài nguyên)
+Chạy Gazebo headless:
 
 ```bash
-ros2 launch my_robot_arm_gazebo gazebo.launch.py headless:=true
+ros2 launch my_robot_arm_pick_place pick_place.launch.py backend:=gazebo headless:=true
 ```
+
+Tuỳ chọn hữu ích:
+
+- `start_rviz:=false`: không mở RViz.
+- `autorun:=false`: chỉ khởi động stack để kiểm tra planning/RViz, không phát lệnh chuyển động.
+- `run_forever:=true`: lặp các chu kỳ thành công; ở Gazebo, thế giới được reset giữa các chu kỳ.
+
+**Kết quả:** Cánh tay di chuyển đến Ready Pose, mở kẹp, tiếp cận/gắp vật, chuyển tới vùng đặt, thả vật, rút tay và quay lại Ready Pose.
 
 ---
 
@@ -218,9 +196,6 @@ pick_place_node:
     retreat_height: 0.20          # Chiều cao nhấc vật sau khi gắp (m)
     place_approach_height: 0.15   # Chiều cao tiếp cận trước khi đặt (m)
 
-    gripper_open: 0.035           # Độ mở gripper (m/ngón)
-    gripper_close: 0.018          # Độ đóng gripper (m/ngón)
-
     pick_position:                # Tọa độ vật thể (hộp đỏ)
       x: 0.5
       y: 0.0
@@ -231,8 +206,8 @@ pick_place_node:
       y: 0.3
       z: 0.445
 
-    max_velocity_scaling_factor: 0.3     # Hệ số tốc độ (0.0 - 1.0)
-    max_acceleration_scaling_factor: 0.2 # Hệ số gia tốc (0.0 - 1.0)
+    planning_attempts: 3          # Số lần thử lại khi planning thất bại
+    startup_delay: 5.0            # Chờ stack khởi động trước khi chạy (giây)
 ```
 
 **Sau khi sửa, cần build lại:**

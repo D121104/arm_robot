@@ -1,192 +1,195 @@
+"""Launch Panda pick-and-place with either mock or Gazebo backend."""
+
 import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import (
-    DeclareLaunchArgument,
-    IncludeLaunchDescription,
-    RegisterEventHandler,
-    TimerAction,
-)
-from launch.event_handlers import OnProcessStart
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     Command,
     FindExecutable,
     LaunchConfiguration,
     PathJoinSubstitution,
+    PythonExpression,
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 import yaml
 
 
-def load_yaml(package_name, file_path):
-    package_path = get_package_share_directory(package_name)
-    absolute_file_path = os.path.join(package_path, file_path)
-    with open(absolute_file_path) as f:
-        return yaml.safe_load(f)
-
-
-def generate_launch_description():
-
-    declared_arguments = []
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            'use_sim',
-            default_value='false',
-            description='Use Gazebo simulation (true) or mock_components (false)',
-        )
+def load_yaml(package_name: str, file_path: str) -> dict:
+    """Load a packaged YAML file into a launch parameter dictionary."""
+    absolute_path = os.path.join(
+        get_package_share_directory(package_name), file_path
     )
+    with open(absolute_path, encoding='utf-8') as file:
+        return yaml.safe_load(file)
 
-    use_sim = LaunchConfiguration('use_sim')
 
-    # --- Robot description ---
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name='xacro')]),
-            ' ',
-            PathJoinSubstitution(
-                [
-                    FindPackageShare('my_robot_arm_description'),
-                    'urdf',
-                    'my_robot_arm.urdf.xacro',
-                ]
-            ),
-            ' ros2_control_hardware_type:=mock_components',
-        ]
-    )
+def generate_launch_description() -> LaunchDescription:
+    backend = LaunchConfiguration('backend')
+    headless = LaunchConfiguration('headless')
+    start_rviz = LaunchConfiguration('start_rviz')
+    autorun = LaunchConfiguration('autorun')
+    run_forever = LaunchConfiguration('run_forever')
+    planning_only = LaunchConfiguration('planning_only')
+    hardware_type = PythonExpression([
+        "'gz_ros2_control' if '", backend,
+        "' == 'gazebo' else 'mock_components'",
+    ])
+    use_sim_time = PythonExpression(["'", backend, "' == 'gazebo'"])
+
+    robot_description_content = Command([
+        PathJoinSubstitution([FindExecutable(name='xacro')]), ' ',
+        PathJoinSubstitution([
+            FindPackageShare('my_robot_arm_description'), 'urdf',
+            'my_robot_arm.urdf.xacro',
+        ]),
+        ' ros2_control_hardware_type:=', hardware_type,
+    ])
     robot_description = {'robot_description': robot_description_content}
-
-    # --- Semantic description (SRDF) ---
-    robot_description_semantic_content = open(
-        os.path.join(
-            get_package_share_directory('my_robot_arm_moveit_config'),
-            'config',
-            'panda.srdf',
-        )
-    ).read()
-    robot_description_semantic = {
-        'robot_description_semantic': robot_description_semantic_content
-    }
-
-    # --- Kinematics ---
-    kinematics_yaml = load_yaml(
+    semantic_path = os.path.join(
+        get_package_share_directory('my_robot_arm_moveit_config'),
+        'config', 'panda.srdf',
+    )
+    with open(semantic_path, encoding='utf-8') as file:
+        robot_description_semantic = {
+            'robot_description_semantic': file.read(),
+        }
+    robot_description_kinematics = {'robot_description_kinematics': load_yaml(
         'my_robot_arm_moveit_config', 'config/kinematics.yaml'
-    )
-    robot_description_kinematics = {'robot_description_kinematics': kinematics_yaml}
-
-    # --- MoveIt controllers config ---
-    moveit_controllers = load_yaml(
-        'my_robot_arm_moveit_config', 'config/moveit_controllers.yaml'
-    )
-
-    # Planning Pipeline configuration (OMPL)
-    ompl_planning_yaml = load_yaml(
-        'my_robot_arm_moveit_config', 'config/ompl_planning.yaml'
-    )
+    )}
     planning_pipelines = {
         'default_planning_pipeline': 'ompl',
         'planning_pipelines': ['ompl'],
-        'ompl': ompl_planning_yaml,
+        'ompl': load_yaml('my_robot_arm_moveit_config', 'config/ompl_planning.yaml'),
     }
-
-    # --- ros2_control controllers config ---
-    robot_controllers = PathJoinSubstitution(
-        [
-            FindPackageShare('my_robot_arm_control'),
-            'config',
-            'ros2_controllers.yaml',
-        ]
+    moveit_controllers = load_yaml(
+        'my_robot_arm_moveit_config', 'config/moveit_controllers.yaml'
     )
+    robot_controllers = PathJoinSubstitution([
+        FindPackageShare('my_robot_arm_control'), 'config',
+        'ros2_controllers.yaml',
+    ])
+    common_moveit_parameters = [
+        robot_description,
+        robot_description_semantic,
+        robot_description_kinematics,
+        planning_pipelines,
+        moveit_controllers,
+        {'use_sim_time': use_sim_time},
+    ]
 
-    # --- Pick and place params ---
-    pick_place_params = load_yaml(
-        'my_robot_arm_pick_place', 'config/pick_place_params.yaml'
+    gazebo = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([
+            FindPackageShare('my_robot_arm_gazebo'), 'launch', 'gazebo.launch.py',
+        ])),
+        condition=IfCondition(PythonExpression(["'", backend, "' == 'gazebo'"])),
+        launch_arguments={'headless': headless}.items(),
     )
-
-    # 1. robot_state_publisher
-    robot_state_publisher_node = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        parameters=[robot_description],
+    mock_robot_state_publisher = Node(
+        package='robot_state_publisher', executable='robot_state_publisher',
+        output='screen', parameters=[robot_description],
+        condition=UnlessCondition(PythonExpression(["'", backend, "' == 'gazebo'"])),
     )
-
-    # 2. controller_manager
-    controller_manager_node = Node(
-        package='controller_manager',
-        executable='ros2_control_node',
-        parameters=[robot_controllers],
-        output='screen',
+    mock_controller_manager = Node(
+        package='controller_manager', executable='ros2_control_node',
+        output='screen', parameters=[robot_controllers],
         remappings=[('~/robot_description', '/robot_description')],
+        condition=UnlessCondition(PythonExpression(["'", backend, "' == 'gazebo'"])),
     )
-
-    # 3. move_group
-    move_group_node = Node(
-        package='moveit_ros_move_group',
-        executable='move_group',
-        output='screen',
-        parameters=[
-            robot_description,
-            robot_description_semantic,
-            robot_description_kinematics,
-            planning_pipelines,
-            moveit_controllers,
-            {'use_sim_time': False},
-        ],
-    )
-
-    # 4. Spawners
-    joint_state_broadcaster_spawner = Node(
-        package='controller_manager',
-        executable='spawner',
+    mock_joint_state_broadcaster = Node(
+        package='controller_manager', executable='spawner', output='screen',
         arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+        condition=UnlessCondition(PythonExpression(["'", backend, "' == 'gazebo'"])),
     )
-
-    panda_arm_controller_spawner = Node(
-        package='controller_manager',
-        executable='spawner',
+    mock_arm_controller = Node(
+        package='controller_manager', executable='spawner', output='screen',
         arguments=['panda_arm_controller', '--controller-manager', '/controller_manager'],
+        condition=UnlessCondition(PythonExpression(["'", backend, "' == 'gazebo'"])),
     )
-
-    panda_hand_controller_spawner = Node(
-        package='controller_manager',
-        executable='spawner',
+    mock_hand_controller = Node(
+        package='controller_manager', executable='spawner', output='screen',
         arguments=['panda_hand_controller', '--controller-manager', '/controller_manager'],
+        condition=UnlessCondition(PythonExpression(["'", backend, "' == 'gazebo'"])),
     )
-
-    # 5. pick_place_node — delayed 5s to ensure move_group is ready
-    pick_place_node = TimerAction(
-        period=5.0,
-        actions=[
-            Node(
-                package='my_robot_arm_pick_place',
-                executable='pick_place_node',
-                name='pick_place_python_node',
-                output='screen',
-                parameters=[
-                    robot_description,
-                    robot_description_semantic,
-                    robot_description_kinematics,
-                    planning_pipelines,
-                    moveit_controllers,
-                    pick_place_params['pick_place_node']['ros__parameters'],
-                    {'use_sim_time': False},
-                ],
-            )
+    move_group = Node(
+        package='moveit_ros_move_group', executable='move_group', output='screen',
+        parameters=common_moveit_parameters,
+    )
+    rviz = Node(
+        package='rviz2', executable='rviz2', name='rviz2', output='screen',
+        arguments=['-d', os.path.join(
+            get_package_share_directory('my_robot_arm_moveit_config'),
+            'rviz', 'moveit.rviz',
+        )],
+        parameters=[
+            robot_description, robot_description_semantic,
+            robot_description_kinematics, {'use_sim_time': use_sim_time},
         ],
+        condition=IfCondition(start_rviz),
+    )
+    # Gazebo starts controller spawners after the robot is inserted.  Defer the
+    # MoveItPy task until their activation and /joint_states publication settle.
+    pick_place = TimerAction(
+        period=15.0,
+        actions=[Node(
+            package='my_robot_arm_pick_place', executable='pick_place_node',
+            name='pick_place_node', output='screen',
+            # MoveItPy builds its own private MoveIt configuration inside the
+            # task process. Do not pass move_group's robot and planning
+            # parameters through ROS global arguments into that C++ executor.
+            parameters=[
+                load_yaml(
+                    'my_robot_arm_pick_place',
+                    'config/pick_place_params.yaml',
+                )['pick_place_node']['ros__parameters'],
+                {
+                    'autorun': autorun,
+                    'run_forever': run_forever,
+                    'planning_only': planning_only,
+                    'use_physical_contacts': use_sim_time,
+                    'use_sim_time': use_sim_time,
+                },
+            ],
+        )],
     )
 
-    return LaunchDescription(
-        declared_arguments
-        + [
-            robot_state_publisher_node,
-            controller_manager_node,
-            joint_state_broadcaster_spawner,
-            panda_arm_controller_spawner,
-            panda_hand_controller_spawner,
-            move_group_node,
-            pick_place_node,
-        ]
-    )
+    return LaunchDescription([
+        DeclareLaunchArgument(
+            'backend', default_value='mock',
+            choices=['mock', 'gazebo'],
+            description='Execution backend: mock hardware or Gazebo Sim.',
+        ),
+        DeclareLaunchArgument(
+            'headless', default_value='false',
+            description='Run Gazebo server without its GUI.',
+        ),
+        DeclareLaunchArgument(
+            'start_rviz', default_value='true',
+            description='Start RViz with the MoveIt configuration.',
+        ),
+        DeclareLaunchArgument(
+            'autorun', default_value='true',
+            description='Start one pick-and-place sequence automatically.',
+        ),
+        DeclareLaunchArgument(
+            'run_forever', default_value='false',
+            description='Repeat successful sequences; only resets world on Gazebo.',
+        ),
+        DeclareLaunchArgument(
+            'planning_only', default_value='false',
+            description='Plan stages without controller execution; contact checks are bypassed.',
+        ),
+        gazebo,
+        mock_robot_state_publisher,
+        mock_controller_manager,
+        mock_joint_state_broadcaster,
+        mock_arm_controller,
+        mock_hand_controller,
+        move_group,
+        rviz,
+        pick_place,
+    ])

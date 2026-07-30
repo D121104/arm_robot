@@ -21,17 +21,13 @@ setup(
             os.path.join('share', package_name, 'worlds'),
             glob('worlds/*.sdf'),
         ),
-        (
-            os.path.join('share', package_name, 'config'),
-            glob('config/*.yaml'),
-        ),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='ddd',
     maintainer_email='ducduydao12112004@gmail.com',
     description='Gazebo simulation for Panda arm pick and place',
-    license='TODO: License declaration',
+    license='MIT',
     extras_require={
         'test': [
             'pytest',

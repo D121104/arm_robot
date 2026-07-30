@@ -21,6 +21,10 @@
                 </state_interface>
             </joint>
             <joint name="panda_finger_joint2">
+                <!-- Gazebo Sim's active physics backend does not enforce URDF
+                     mimic constraints. Command this finger explicitly so its
+                     physical state remains symmetric with finger joint1. -->
+                <command_interface name="position" />
                 <state_interface name="position">
                   <param name="initial_value">0.035</param>
                 </state_interface>

@@ -1,62 +1,44 @@
-# Pick and Place positions configuration
-# Units: meters (x, y, z) and radians (roll, pitch, yaw)
-
+# Five-object physical-contact pick-and-place task for Gazebo Sim.
+# Units: metres, seconds, kilograms and quaternion components.
 pick_place_node:
   ros__parameters:
-    # Pre-grasp approach height above pick object (m)
+    arm_group_name: panda_arm
+    gripper_group_name: hand
+    base_frame: panda_link0
+    tool_link: panda_link8
+    use_physical_contacts: true
+    planning_only: false
+
+    # Conservative Cartesian clearances for top-down grasps. Keep the finger
+    # collision meshes 20 mm above the table at contact pose so the right
+    # finger does not transition from object contact to table contact.
+    grasp_z_offset: 0.020
     approach_height: 0.12
-
-    # Post-grasp retreat height (m)
-    retreat_height: 0.20
-
-    # Pre-place approach height above place position (m)
+    lift_height: 0.18
     place_approach_height: 0.15
+    retreat_height: 0.20
+    planning_attempts: 3
+    grasp_attempts: 2
+    planning_retry_delay: 0.5
+    contact_timeout: 2.0
+    contact_settle_duration: 0.20
+    contact_max_age: 0.30
+    # Close using reachable 5 mm trajectories and stop immediately once both
+    # fingers have recent contact with the selected object.
+    gripper_close_step: 0.005
+    gripper_close_settle_duration: 0.10
+    post_release_settle_duration: 0.75
+    startup_delay: 8.0
+    cycle_delay: 2.0
+    random_seed: -1  # Negative value means a fresh random order every cycle.
+    autorun: true
+    run_forever: false
+    reset_world_between_cycles: true
 
-    # Gripper open position (m per finger, max 0.04)
-    gripper_open: 0.035
+    # ROS 2 parameters do not support arrays of maps, so the catalog is JSON.
+    # Poses are object centres; each destination is a physically separate pad.
+    object_catalog_json: >-
+      [{"id":"box_small","gazebo_model":"box_small","shape":"box","dimensions":[0.035,0.045,0.040],"mass":0.060,"gripper_opening":0.0,"pick_pose":[0.38,-0.22,0.445],"place_pose":[0.34,0.25,0.451]},{"id":"box_medium","gazebo_model":"box_medium","shape":"box","dimensions":[0.055,0.040,0.050],"mass":0.090,"gripper_opening":0.0,"pick_pose":[0.50,-0.16,0.450],"place_pose":[0.50,0.25,0.456]},{"id":"box_large","gazebo_model":"box_large","shape":"box","dimensions":[0.070,0.045,0.060],"mass":0.120,"gripper_opening":0.0,"pick_pose":[0.62,-0.22,0.455],"place_pose":[0.66,0.25,0.461]},{"id":"cylinder_small","gazebo_model":"cylinder_small","shape":"cylinder","dimensions":[0.022,0.050],"mass":0.065,"gripper_opening":0.0,"pick_pose":[0.42,0.03,0.450],"place_pose":[0.42,0.42,0.456]},{"id":"cylinder_large","gazebo_model":"cylinder_large","shape":"cylinder","dimensions":[0.032,0.060],"mass":0.100,"gripper_opening":0.0,"pick_pose":[0.58,0.03,0.455],"place_pose":[0.58,0.42,0.461]}]
 
-    # Gripper close position (m per finger, set to grip a 4cm cube)
-    gripper_close: 0.018
-
-    # Gripper max effort (N)
-    gripper_effort: 10.0
-
-    # Pick position (center of the red cube on the table)
-    pick_position:
-      x: 0.5
-      y: 0.0
-      z: 0.445
-
-    # Place position (green zone marker on the table)
-    place_position:
-      x: 0.5
-      y: 0.3
-      z: 0.445
-
-    # Orientation at pick/place (end-effector pointing downward)
-    # quaternion: x, y, z, w
-    pick_orientation:
-      x: 1.0
-      y: 0.0
-      z: 0.0
-      w: 0.0
-
-    place_orientation:
-      x: 1.0
-      y: 0.0
-      z: 0.0
-      w: 0.0
-
-    # Move group names
-    arm_group_name: 'panda_arm'
-    gripper_group_name: 'hand'
-
-    # Planning time limit (seconds)
-    planning_time: 10.0
-
-    # Number of planning attempts
-    num_planning_attempts: 5
-
-    # Velocity and acceleration scaling
-    max_velocity_scaling_factor: 0.3
-    max_acceleration_scaling_factor: 0.2
+    grasp_orientation: [1.0, 0.0, 0.0, 0.0]
+    place_orientation: [1.0, 0.0, 0.0, 0.0]

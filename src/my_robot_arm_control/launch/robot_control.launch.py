@@ -1,6 +1,3 @@
-import os
-
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler
 from launch.event_handlers import OnProcessExit
@@ -22,7 +19,10 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'ros2_control_hardware_type',
             default_value='mock_components',
-            description='Type of ros2_control hardware interface (mock_components or gz_ros2_control)',
+            description=(
+                'Type of ros2_control hardware interface '
+                '(mock_components or gz_ros2_control)'
+            ),
         )
     )
 

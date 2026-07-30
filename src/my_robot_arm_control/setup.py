@@ -27,7 +27,7 @@ setup(
     maintainer='ddd',
     maintainer_email='ducduydao12112004@gmail.com',
     description='ros2_control configuration for Panda arm pick and place',
-    license='TODO: License declaration',
+    license='MIT',
     extras_require={
         'test': [
             'pytest',

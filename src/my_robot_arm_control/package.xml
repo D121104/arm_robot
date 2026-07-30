@@ -5,7 +5,7 @@
   <version>0.0.0</version>
   <description>ros2_control configuration for Panda arm pick and place</description>
   <maintainer email="ducduydao12112004@gmail.com">ddd</maintainer>
-  <license>TODO: License declaration</license>
+  <license>MIT</license>
 
   <depend>rclpy</depend>
 

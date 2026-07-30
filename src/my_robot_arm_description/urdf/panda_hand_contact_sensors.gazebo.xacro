@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!--
+    Gazebo contact sensors for the Panda finger collision geometries.
+    libsdformat names the converted URDF collision elements after their links;
+    each selector must match that generated SDF collision name exactly.
+  -->
+  <xacro:macro name="panda_hand_contact_sensors">
+    <gazebo reference="panda_leftfinger">
+      <sensor name="left_finger_contact" type="contact">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <contact>
+          <collision>panda_leftfinger_collision</collision>
+          <topic>/panda/left_finger/contact</topic>
+        </contact>
+      </sensor>
+    </gazebo>
+    <gazebo reference="panda_rightfinger">
+      <sensor name="right_finger_contact" type="contact">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <contact>
+          <collision>panda_rightfinger_collision</collision>
+          <topic>/panda/right_finger/contact</topic>
+        </contact>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+</robot>

@@ -5,13 +5,14 @@
   <version>0.0.0</version>
   <description>Pick and place logic for Panda arm</description>
   <maintainer email="ducduydao12112004@gmail.com">ddd</maintainer>
-  <license>TODO: License declaration</license>
+  <license>MIT</license>
 
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>moveit_msgs</depend>
+  <depend>ros_gz_interfaces</depend>
 
   <exec_depend>my_robot_arm_description</exec_depend>
   <exec_depend>my_robot_arm_control</exec_depend>

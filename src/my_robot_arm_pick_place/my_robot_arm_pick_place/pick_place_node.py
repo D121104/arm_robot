@@ -1,418 +1,607 @@
 #!/usr/bin/env python3
 """
-Pick and Place Node for Panda Arm.
+Physical-contact Gazebo pick-and-place task for five Panda objects.
 
-This node uses MoveIt 2 Python API (moveit_commander) to:
-1. Move arm to home position
-2. Open gripper
-3. Move above pick object (pre-grasp)
-4. Move down to grasp position
-5. Close gripper (grasp object)
-6. Retreat upward
-7. Move above place position (pre-place)
-8. Move down to place position
-9. Open gripper (release object)
-10. Retreat upward
-11. Return home
+This node is simulation-only. Gazebo owns object physics: the node never
+teleports an object while picking or placing. A lift is permitted only after
+both finger contact sensors report the currently selected object.
 """
 
+from dataclasses import dataclass
+import json
+import os
+import random
+import threading
 import time
+from typing import Callable
 
+from ament_index_python.packages import get_package_share_directory
+from geometry_msgs.msg import PoseStamped
+from moveit.core.robot_state import RobotState
+from moveit.planning import MoveItPy
+from moveit_configs_utils import MoveItConfigsBuilder
+import numpy as np
 import rclpy
 from rclpy.node import Node
-from rclpy.parameter import Parameter
-from geometry_msgs.msg import Pose, PoseStamped
-from moveit.core.robot_state import RobotState
-from moveit.planning import MoveItPy, PlanningComponent
-import numpy as np
+from ros_gz_interfaces.msg import Contacts
+
+
+@dataclass(frozen=True)
+class TaskObject:
+    """Validated static description of a Gazebo object and its target pad."""
+
+    object_id: str
+    gazebo_model: str
+    shape: str
+    dimensions: tuple[float, ...]
+    gripper_opening: float
+    pick_pose: tuple[float, float, float]
+    place_pose: tuple[float, float, float]
 
 
 class PickPlaceNode(Node):
-    """Node that performs autonomous pick and place using MoveIt 2."""
+    """Plan and execute contact-validated top-down pick-and-place in Gazebo."""
 
-    def __init__(self):
+    ARM_CONTROLLER = 'panda_arm_controller'
+    HAND_CONTROLLER = 'panda_hand_controller'
+    LEFT_CONTACT_TOPIC = '/panda/left_finger/contact'
+    RIGHT_CONTACT_TOPIC = '/panda/right_finger/contact'
+
+    def __init__(self) -> None:
+        """Initialize MoveIt, validated task parameters, and contact streams."""
         super().__init__('pick_place_node')
+        self._declare_parameters()
+        self._load_parameters()
+        self._stop_event = threading.Event()
+        self._contact_lock = threading.Lock()
+        self._finger_contacts: dict[str, tuple[set[str], float]] = {
+            'left': (set(), 0.0),
+            'right': (set(), 0.0),
+        }
+        self._last_contact_models: dict[str, set[str]] = {
+            'left': set(),
+            'right': set(),
+        }
+        self.create_subscription(
+            Contacts,
+            self.LEFT_CONTACT_TOPIC,
+            lambda message: self._contact_callback('left', message),
+            10,
+        )
+        self.create_subscription(
+            Contacts,
+            self.RIGHT_CONTACT_TOPIC,
+            lambda message: self._contact_callback('right', message),
+            10,
+        )
+        self._initialize_moveit()
+        self._worker: threading.Thread | None = None
+        if self.autorun:
+            self._worker = threading.Thread(
+                target=self.run,
+                name='pick-place-worker',
+                daemon=True,
+            )
+            self._worker.start()
 
-        # Declare parameters with defaults
-        self.declare_parameter('approach_height', 0.12)
-        self.declare_parameter('retreat_height', 0.20)
-        self.declare_parameter('place_approach_height', 0.15)
-        self.declare_parameter('gripper_open', 0.035)
-        self.declare_parameter('gripper_close', 0.018)
-        self.declare_parameter('gripper_effort', 10.0)
-        self.declare_parameter('pick_position.x', 0.5)
-        self.declare_parameter('pick_position.y', 0.0)
-        self.declare_parameter('pick_position.z', 0.445)
-        self.declare_parameter('place_position.x', 0.5)
-        self.declare_parameter('place_position.y', 0.3)
-        self.declare_parameter('place_position.z', 0.445)
-        self.declare_parameter('pick_orientation.x', 1.0)
-        self.declare_parameter('pick_orientation.y', 0.0)
-        self.declare_parameter('pick_orientation.z', 0.0)
-        self.declare_parameter('pick_orientation.w', 0.0)
-        self.declare_parameter('place_orientation.x', 1.0)
-        self.declare_parameter('place_orientation.y', 0.0)
-        self.declare_parameter('place_orientation.z', 0.0)
-        self.declare_parameter('place_orientation.w', 0.0)
-        self.declare_parameter('arm_group_name', 'panda_arm')
-        self.declare_parameter('gripper_group_name', 'hand')
-        self.declare_parameter('planning_time', 10.0)
-        self.declare_parameter('num_planning_attempts', 5)
-        self.declare_parameter('max_velocity_scaling_factor', 0.3)
-        self.declare_parameter('max_acceleration_scaling_factor', 0.2)
-
-        # Read parameters
-        self.approach_h = self.get_parameter('approach_height').value
-        self.retreat_h = self.get_parameter('retreat_height').value
-        self.place_approach_h = self.get_parameter('place_approach_height').value
-        self.gripper_open = self.get_parameter('gripper_open').value
-        self.gripper_close = self.get_parameter('gripper_close').value
-
-        self.pick_x = self.get_parameter('pick_position.x').value
-        self.pick_y = self.get_parameter('pick_position.y').value
-        self.pick_z = self.get_parameter('pick_position.z').value
-
-        self.place_x = self.get_parameter('place_position.x').value
-        self.place_y = self.get_parameter('place_position.y').value
-        self.place_z = self.get_parameter('place_position.z').value
-
-        self.pick_ox = self.get_parameter('pick_orientation.x').value
-        self.pick_oy = self.get_parameter('pick_orientation.y').value
-        self.pick_oz = self.get_parameter('pick_orientation.z').value
-        self.pick_ow = self.get_parameter('pick_orientation.w').value
-
-        self.arm_group = self.get_parameter('arm_group_name').value
-        self.gripper_group = self.get_parameter('gripper_group_name').value
-        self.planning_time = self.get_parameter('planning_time').value
-        self.num_attempts = self.get_parameter('num_planning_attempts').value
-        self.vel_scale = self.get_parameter('max_velocity_scaling_factor').value
-        self.acc_scale = self.get_parameter('max_acceleration_scaling_factor').value
-
-        # Initialize MoveItPy using MoveItConfigsBuilder
-        self.get_logger().info('Initializing MoveItPy using MoveItConfigsBuilder...')
-        
-        import os
-        from ament_index_python.packages import get_package_share_directory
-        from moveit_configs_utils import MoveItConfigsBuilder
-        
-        # Determine hardware type based on simulation configuration
-        use_sim_time = self.get_parameter('use_sim_time').value
-        hardware_type = 'gz_ros2_control' if use_sim_time else 'mock_components'
-        
-        # Find absolute path of URDF xacro
+    def _initialize_moveit(self) -> None:
+        """Create MoveItPy with the backend matching the selected simulation mode."""
+        hardware_type = (
+            'gz_ros2_control' if self.use_sim_time else 'mock_components'
+        )
         urdf_path = os.path.join(
             get_package_share_directory('my_robot_arm_description'),
             'urdf',
-            'my_robot_arm.urdf.xacro'
+            'my_robot_arm.urdf.xacro',
         )
-        
-        # Build MoveIt parameters dictionary (using only OMPL pipeline)
         moveit_config = (
-            MoveItConfigsBuilder("panda", package_name="my_robot_arm_moveit_config")
-            .robot_description(file_path=urdf_path, mappings={"ros2_control_hardware_type": hardware_type})
-            .moveit_cpp(file_path="config/moveit_cpp.yaml")
-            .planning_pipelines(pipelines=["ompl"])
+            MoveItConfigsBuilder(
+                'panda', package_name='my_robot_arm_moveit_config'
+            )
+            .robot_description(
+                file_path=urdf_path,
+                mappings={'ros2_control_hardware_type': hardware_type},
+            )
+            .moveit_cpp(file_path='config/moveit_cpp.yaml')
+            .planning_pipelines(pipelines=['ompl'])
             .to_moveit_configs()
         )
-        
-        # Add use_sim_time and qos_overrides to MoveItPy C++ config if simulation is enabled
         config_dict = moveit_config.to_dict()
-        if use_sim_time:
-            config_dict['use_sim_time'] = True
-            config_dict['qos_overrides./clock.subscription.durability'] = 'volatile'
-            config_dict['qos_overrides./clock.subscription.reliability'] = 'best_effort'
-            config_dict['qos_overrides./clock.subscription.depth'] = 1
-            config_dict['qos_overrides./clock.subscription.history'] = 'keep_last'
-
-        # Instantiate MoveItPy with built config
+        # MoveItPy owns a private C++ node. It must use Gazebo time so its
+        # current-state monitor accepts simulation-stamped joint states. Jazzy
+        # exposes TimeSource's clock QoS as parameters; set each valid value
+        # explicitly to prevent an invalid inherited override at declaration.
+        config_dict.update({
+            'use_sim_time': self.use_sim_time,
+            # Gazebo may report a finger position infinitesimally beyond its
+            # 0.04 m upper bound. Accept only this small numerical error in
+            # the planning start state; the physical URDF limit is unchanged.
+            'start_state_max_bounds_error': 0.001,
+            # A physical gripper intentionally stops short of its zero-width
+            # target when it contacts an object.  Keep MoveIt from cancelling
+            # that valid contact-limited close before the controller can
+            # report its tolerance-based success.
+            'trajectory_execution.allowed_execution_duration_scaling': 3.0,
+            'trajectory_execution.allowed_goal_duration_margin': 5.0,
+            'qos_overrides./clock.subscription.depth': 1,
+            'qos_overrides./clock.subscription.durability': 'volatile',
+            'qos_overrides./clock.subscription.history': 'keep_last',
+            'qos_overrides./clock.subscription.reliability': 'reliable',
+        })
+        self.get_logger().info(
+            'Initializing MoveItPy with use_sim_time=%s, start-state '
+            'bounds tolerance=0.001, trajectory execution allowance '
+            '(scaling=3.0, goal margin=5.0 s), and ClockQoS '
+            '(keep_last, depth=1, reliable, volatile).'
+            % self.use_sim_time
+        )
         self.moveit = MoveItPy(
-            node_name='pick_place_moveit_py',
-            config_dict=config_dict
+            node_name='pick_place_moveit_py', config_dict=config_dict
         )
         self.arm = self.moveit.get_planning_component(self.arm_group)
         self.gripper = self.moveit.get_planning_component(self.gripper_group)
-        self.robot_model = self.moveit.get_robot_model()
 
-        self.get_logger().info('MoveItPy initialized. Ready for pick and place.')
+    def _declare_parameters(self) -> None:
+        """Declare every task parameter with safe simulation defaults."""
+        defaults = {
+            'arm_group_name': 'panda_arm',
+            'gripper_group_name': 'hand',
+            'base_frame': 'panda_link0',
+            'tool_link': 'panda_link8',
+            'use_physical_contacts': True,
+            'planning_only': False,
+            'grasp_z_offset': 0.020,
+            'approach_height': 0.12,
+            'lift_height': 0.18,
+            'place_approach_height': 0.15,
+            'retreat_height': 0.20,
+            'planning_attempts': 3,
+            'grasp_attempts': 2,
+            'planning_retry_delay': 0.5,
+            'contact_timeout': 2.0,
+            'contact_settle_duration': 0.20,
+            'contact_max_age': 0.30,
+            # Close the physical gripper in finite, reachable increments and
+            # stop as soon as both fingers contact the requested object.
+            'gripper_close_step': 0.005,
+            'gripper_close_settle_duration': 0.10,
+            'startup_delay': 8.0,
+            'random_seed': -1,
+            'autorun': True,
+            'run_forever': False,
+            'object_catalog_json': '[]',
+            'grasp_orientation': [1.0, 0.0, 0.0, 0.0],
+            'place_orientation': [1.0, 0.0, 0.0, 0.0],
+        }
+        for name, value in defaults.items():
+            self.declare_parameter(name, value)
 
-        # Give time for controllers and move_group to fully initialize
-        time.sleep(5.0)
+    def _parameter_value(self, name: str):
+        """Return a declared ROS parameter value."""
+        return self.get_parameter(name).value
 
-        # Start pick and place sequence in a separate thread to allow the ROS 2 executor to spin in the main thread
-        import threading
-        self.thread = threading.Thread(target=self.run_pick_and_place, daemon=True)
-        self.thread.start()
+    def _load_parameters(self) -> None:
+        """Load scalar parameters and validate the five-object JSON catalog."""
+        value = self._parameter_value
+        self.arm_group = str(value('arm_group_name'))
+        self.gripper_group = str(value('gripper_group_name'))
+        self.base_frame = str(value('base_frame'))
+        self.tool_link = str(value('tool_link'))
+        self.use_sim_time = bool(value('use_sim_time'))
+        self.use_contacts = bool(value('use_physical_contacts'))
+        self.planning_only = bool(value('planning_only'))
+        self.autorun = bool(value('autorun'))
+        self.run_forever = bool(value('run_forever'))
+        self.grasp_z_offset = float(value('grasp_z_offset'))
+        self.approach_height = float(value('approach_height'))
+        self.lift_height = float(value('lift_height'))
+        self.place_approach_height = float(value('place_approach_height'))
+        self.retreat_height = float(value('retreat_height'))
+        self.planning_attempts = int(value('planning_attempts'))
+        self.grasp_attempts = int(value('grasp_attempts'))
+        self.planning_retry_delay = float(value('planning_retry_delay'))
+        self.contact_timeout = float(value('contact_timeout'))
+        self.contact_settle_duration = float(value('contact_settle_duration'))
+        self.contact_max_age = float(value('contact_max_age'))
+        self.gripper_close_step = float(value('gripper_close_step'))
+        self.gripper_close_settle_duration = float(
+            value('gripper_close_settle_duration')
+        )
+        self.startup_delay = float(value('startup_delay'))
+        self.random_seed = int(value('random_seed'))
+        self.grasp_orientation = tuple(float(x) for x in value('grasp_orientation'))
+        self.place_orientation = tuple(float(x) for x in value('place_orientation'))
+        self.objects = self._parse_catalog(str(value('object_catalog_json')))
+        if not 0.0 < self.gripper_close_step <= 0.04:
+            raise ValueError('gripper_close_step must be in (0.0, 0.04].')
+        if self.gripper_close_settle_duration < 0.0:
+            raise ValueError('gripper_close_settle_duration must be non-negative.')
+        if self.use_contacts and not self.use_sim_time:
+            raise ValueError('Physical contact validation requires backend:=gazebo.')
 
-    # ------------------------------------------------------------------
-    # Helper: move arm to named state (e.g. 'ready', 'home')
-    # ------------------------------------------------------------------
-    def move_arm_to_named_state(self, state_name: str) -> bool:
-        self.get_logger().info(f'Moving arm to named state: {state_name}')
-        for attempt in range(3):
-            self.arm.set_start_state_to_current_state()
-            self.arm.set_goal_state(configuration_name=state_name)
-            plan_result = self.arm.plan()
-            if plan_result:
-                robot_trajectory = plan_result.trajectory
-                self.get_logger().info(f'Plan succeeded for {state_name} (attempt {attempt+1}). Executing...')
-                self.moveit.execute(robot_trajectory, controllers=["panda_arm_controller"])
-                time.sleep(1.0)
-                return True
-            self.get_logger().warn(f'Planning attempt {attempt+1}/3 failed for named state: {state_name}')
-            time.sleep(0.5)
-        self.get_logger().error(f'Failed to plan to named state after 3 attempts: {state_name}')
-        return False
+    @staticmethod
+    def _parse_catalog(raw: str) -> list[TaskObject]:
+        """Parse and validate the exactly-five-object task catalog."""
+        records = json.loads(raw)
+        if len(records) != 5:
+            raise ValueError('object_catalog_json must contain exactly five objects.')
+        objects: list[TaskObject] = []
+        ids: set[str] = set()
+        destinations: set[tuple[float, float, float]] = set()
+        for item in records:
+            object_id = str(item['id'])
+            shape = str(item['shape'])
+            dimensions = tuple(float(x) for x in item['dimensions'])
+            pick = tuple(float(x) for x in item['pick_pose'])
+            place = tuple(float(x) for x in item['place_pose'])
+            valid_pose = len(pick) == 3 and len(place) == 3
+            if object_id in ids or shape not in ('box', 'cylinder') or not valid_pose:
+                raise ValueError(f'Invalid object catalog entry: {object_id}')
+            opening = float(item['gripper_opening'])
+            if any(value <= 0.0 for value in dimensions) or not 0.0 <= opening <= 0.04:
+                raise ValueError(f'Invalid dimensions or gripper opening: {object_id}')
+            if place in destinations:
+                raise ValueError(f'Duplicate placement pose: {place}')
+            ids.add(object_id)
+            destinations.add(place)
+            objects.append(
+                TaskObject(
+                    object_id,
+                    str(item['gazebo_model']),
+                    shape,
+                    dimensions,
+                    opening,
+                    pick,
+                    place,
+                )
+            )
+        return objects
 
-    # ------------------------------------------------------------------
-    # Helper: move arm to a Cartesian pose
-    # ------------------------------------------------------------------
-    def move_arm_to_pose(self, x: float, y: float, z: float,
-                         ox: float, oy: float, oz: float, ow: float,
-                         label: str = 'target') -> bool:
-        self.get_logger().info(f'Moving arm to {label}: ({x:.3f}, {y:.3f}, {z:.3f})')
+    def _contact_callback(self, finger: str, message: Contacts) -> None:
+        """Store collision entity names and log only meaningful contact changes."""
+        models: set[str] = set()
+        for contact in message.contacts:
+            for entity in (contact.collision1, contact.collision2):
+                if entity.name:
+                    models.add(entity.name)
+        with self._contact_lock:
+            changed = models != self._last_contact_models[finger]
+            self._finger_contacts[finger] = (models, time.monotonic())
+            self._last_contact_models[finger] = models
+        if changed:
+            entities = ', '.join(sorted(models)) if models else '<none>'
+            self.get_logger().info(
+                f'Contact update ({finger}): {len(message.contacts)} pair(s); '
+                f'entities=[{entities}]'
+            )
 
-        pose_goal = PoseStamped()
-        pose_goal.header.frame_id = 'panda_link0'
-        pose_goal.pose.position.x = x
-        pose_goal.pose.position.y = y
-        pose_goal.pose.position.z = z
-        pose_goal.pose.orientation.x = ox
-        pose_goal.pose.orientation.y = oy
-        pose_goal.pose.orientation.z = oz
-        pose_goal.pose.orientation.w = ow
-
-        for attempt in range(3):
-            self.arm.set_start_state_to_current_state()
-            self.arm.set_goal_state(pose_stamped_msg=pose_goal, pose_link='panda_link8')
-
-            plan_result = self.arm.plan()
-            if plan_result:
-                self.get_logger().info(f'Plan succeeded for {label} (attempt {attempt+1}). Executing...')
-                self.moveit.execute(plan_result.trajectory, controllers=["panda_arm_controller"])
-                time.sleep(1.0)
-                return True
-            self.get_logger().warn(f'Planning attempt {attempt+1}/3 failed for {label}')
-            time.sleep(0.5)
-
-        self.get_logger().error(f'Planning failed for {label} after 3 attempts')
-        return False
-
-    # ------------------------------------------------------------------
-    # Helper: move gripper to named state ('open' or 'close')
-    # ------------------------------------------------------------------
-    def set_gripper(self, state_name: str) -> bool:
-        self.get_logger().info(f'Setting gripper to: {state_name}')
-        for attempt in range(3):
-            self.gripper.set_start_state_to_current_state()
-            self.gripper.set_goal_state(configuration_name=state_name)
-            plan_result = self.gripper.plan()
-            if plan_result:
-                self.get_logger().info(f'Gripper plan succeeded for {state_name} (attempt {attempt+1}). Executing...')
-                self.moveit.execute(plan_result.trajectory, controllers=["panda_hand_controller"])
-                time.sleep(1.5)
-                return True
-            self.get_logger().warn(f'Gripper planning attempt {attempt+1}/3 failed for state: {state_name}')
-            time.sleep(0.5)
-        self.get_logger().error(f'Gripper planning failed after 3 attempts for state: {state_name}')
-        return False
-
-    # ------------------------------------------------------------------
-    # Reset Gazebo World
-    # ------------------------------------------------------------------
-    def reset_world(self):
-        self.get_logger().info('Calling Gazebo Reset World (model_only)...')
-        import subprocess
-        try:
-            # We call the gz service command to reset only model poses (retaining simulation time)
-            cmd = [
-                "gz", "service", "-s", "/world/pick_place_world/control",
-                "--reqtype", "gz.msgs.WorldControl",
-                "--reptype", "gz.msgs.Boolean",
-                "--timeout", "3000",
-                "--req", "reset: {model_only: true}"
-            ]
-            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            self.get_logger().info('Gazebo Reset World service called successfully.')
-        except Exception as e:
-            self.get_logger().error(f'Failed to call Reset World: {e}')
-
-        self.get_logger().info('Resetting pick_object pose to initial position...')
-        try:
-            cmd = [
-                "gz", "service", "-s", "/world/pick_place_world/set_pose",
-                "--reqtype", "gz.msgs.Pose",
-                "--reptype", "gz.msgs.Boolean",
-                "--timeout", "3000",
-                "--req", f'name: "pick_object", position: {{x: {self.pick_x}, y: {self.pick_y}, z: {self.pick_z}}}, orientation: {{x: 0.0, y: 0.0, z: 0.0, w: 1.0}}'
-            ]
-            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            self.get_logger().info('pick_object pose reset successfully.')
-        except Exception as e:
-            self.get_logger().error(f'Failed to reset pick_object pose: {e}')
-
-    # ------------------------------------------------------------------
-    # Reactivate ROS 2 Controllers
-    # ------------------------------------------------------------------
-    def reactivate_controllers(self):
-        self.get_logger().info('Reactivating controllers...')
-        from controller_manager_msgs.srv import SwitchController
-        
-        client = self.create_client(SwitchController, '/controller_manager/switch_controller')
-        while not client.wait_for_service(timeout_sec=1.0):
-            if not rclpy.ok():
-                return
-            self.get_logger().info('Waiting for /controller_manager/switch_controller service...')
-            
-        req = SwitchController.Request()
-        req.activate_controllers = ['joint_state_broadcaster', 'panda_arm_controller', 'panda_hand_controller']
-        req.strictness = SwitchController.Request.BEST_EFFORT
-        req.activate_asap = True
-        
-        future = client.call_async(req)
-        
-        import time
-        start_time = time.time()
-        while not future.done():
-            time.sleep(0.1)
-            if time.time() - start_time > 5.0:
-                self.get_logger().error('Timeout waiting for switch_controller service response')
-                return
-        
-        res = future.result()
-        if res and res.ok:
-            self.get_logger().info('Controllers reactivated successfully.')
-        else:
-            self.get_logger().error(f'Failed to reactivate controllers: {res.message if res else "No response"}')
-
-    # ------------------------------------------------------------------
-    # Main pick and place sequence loop
-    # ------------------------------------------------------------------
-    def run_pick_and_place(self):
-        # Give the main thread a moment to start spinning rclpy.spin
-        time.sleep(1.0)
-        while rclpy.ok():
-            success = self.execute_sequence()
-            if not success:
-                self.get_logger().error('Pick and place sequence failed.')
-            
-            # Call reset world service if simulation is enabled
-            if self.get_parameter('use_sim_time').value:
-                self.reset_world()
-                # Give a brief delay for Gazebo to complete resetting poses
-                time.sleep(1.0)
-                # Reactivate controllers since reset transitions them to inactive
-                self.reactivate_controllers()
-                # Give time for joint states to publish and propagate to MoveIt
-                time.sleep(1.0)
-            
-            self.get_logger().info('Waiting 2 seconds before starting next cycle...')
-            time.sleep(2.0)
-
-    def execute_sequence(self) -> bool:
-        self.get_logger().info('=' * 60)
-        self.get_logger().info('Starting Pick and Place Sequence')
-        self.get_logger().info(f'  Pick  position: ({self.pick_x}, {self.pick_y}, {self.pick_z})')
-        self.get_logger().info(f'  Place position: ({self.place_x}, {self.place_y}, {self.place_z})')
-        self.get_logger().info('=' * 60)
-
-        # --- Step 1: Go to home/ready position ---
-        self.get_logger().info('[1/11] Moving to home position...')
-        if not self.move_arm_to_named_state('ready'):
-            self.get_logger().error('FAILED at step 1. Aborting.')
-            return False
-
-        # --- Step 2: Open gripper ---
-        self.get_logger().info('[2/11] Opening gripper...')
-        self.set_gripper('open')
-
-        # --- Step 3: Move above pick object (pre-grasp) ---
-        pre_pick_z = self.pick_z + self.approach_h
-        self.get_logger().info('[3/11] Moving to pre-grasp position above pick object...')
-        if not self.move_arm_to_pose(
-            self.pick_x, self.pick_y, pre_pick_z,
-            self.pick_ox, self.pick_oy, self.pick_oz, self.pick_ow,
-            label='pre-grasp'
-        ):
-            self.get_logger().error('FAILED at step 3. Aborting.')
-            return False
-
-        # --- Step 4: Move down to grasp position ---
-        self.get_logger().info('[4/11] Moving down to grasp position...')
-        if not self.move_arm_to_pose(
-            self.pick_x, self.pick_y, self.pick_z,
-            self.pick_ox, self.pick_oy, self.pick_oz, self.pick_ow,
-            label='grasp'
-        ):
-            self.get_logger().error('FAILED at step 4. Aborting.')
-            return False
-
-        # --- Step 5: Close gripper (grasp) ---
-        self.get_logger().info('[5/11] Closing gripper to grasp object...')
-        self.set_gripper('close')
-        time.sleep(1.5)
-
-        # --- Step 6: Retreat upward (post-grasp) ---
-        post_pick_z = self.pick_z + self.retreat_h
-        self.get_logger().info('[6/11] Retreating upward with object...')
-        if not self.move_arm_to_pose(
-            self.pick_x, self.pick_y, post_pick_z,
-            self.pick_ox, self.pick_oy, self.pick_oz, self.pick_ow,
-            label='post-grasp retreat'
-        ):
-            self.get_logger().error('FAILED at step 6. Aborting.')
-            return False
-
-        # --- Step 7: Move above place position (pre-place) ---
-        pre_place_z = self.place_z + self.place_approach_h
-        self.get_logger().info('[7/11] Moving above place position...')
-        if not self.move_arm_to_pose(
-            self.place_x, self.place_y, pre_place_z,
-            self.pick_ox, self.pick_oy, self.pick_oz, self.pick_ow,
-            label='pre-place'
-        ):
-            self.get_logger().error('FAILED at step 7. Aborting.')
-            return False
-
-        # --- Step 8: Move down to place position ---
-        self.get_logger().info('[8/11] Moving down to place position...')
-        if not self.move_arm_to_pose(
-            self.place_x, self.place_y, self.place_z,
-            self.pick_ox, self.pick_oy, self.pick_oz, self.pick_ow,
-            label='place'
-        ):
-            self.get_logger().error('FAILED at step 8. Aborting.')
-            return False
-
-        # --- Step 9: Open gripper (release) ---
-        self.get_logger().info('[9/11] Opening gripper to release object...')
-        self.set_gripper('open')
-        time.sleep(1.0)
-
-        # --- Step 10: Retreat upward ---
-        post_place_z = self.place_z + self.retreat_h
-        self.get_logger().info('[10/11] Retreating upward from place position...')
-        self.move_arm_to_pose(
-            self.place_x, self.place_y, post_place_z,
-            self.pick_ox, self.pick_oy, self.pick_oz, self.pick_ow,
-            label='post-place retreat'
+    def _has_dual_contact(self, task_object: TaskObject) -> bool:
+        """Return whether both recent finger streams touch the selected model."""
+        if not self.use_contacts:
+            return self.planning_only
+        now = time.monotonic()
+        expected = task_object.gazebo_model
+        with self._contact_lock:
+            left = self._finger_contacts['left']
+            right = self._finger_contacts['right']
+        both_recent = (
+            now - left[1] <= self.contact_max_age
+            and now - right[1] <= self.contact_max_age
+        )
+        return (
+            both_recent
+            and any(expected in name for name in left[0])
+            and any(expected in name for name in right[0])
         )
 
-        # --- Step 11: Return to home ---
-        self.get_logger().info('[11/11] Returning to home position...')
-        self.move_arm_to_named_state('ready')
+    def _wait_for_dual_contact(self, task_object: TaskObject) -> bool:
+        """Wait until valid dual contact remains stable for the configured duration."""
+        deadline = time.monotonic() + self.contact_timeout
+        stable_from: float | None = None
+        while (
+            rclpy.ok()
+            and not self._stop_event.is_set()
+            and time.monotonic() < deadline
+        ):
+            if self._has_dual_contact(task_object):
+                stable_from = stable_from or time.monotonic()
+                if time.monotonic() - stable_from >= self.contact_settle_duration:
+                    return True
+            else:
+                stable_from = None
+            self._stop_event.wait(0.02)
+        now = time.monotonic()
+        expected = task_object.gazebo_model
+        with self._contact_lock:
+            left = self._finger_contacts['left']
+            right = self._finger_contacts['right']
+        left_match = any(expected in name for name in left[0])
+        right_match = any(expected in name for name in right[0])
+        self.get_logger().warning(
+            'Dual-contact timeout for %s: expected=%s; left age=%.3fs '
+            'match=%s entities=%s; right age=%.3fs match=%s entities=%s'
+            % (
+                task_object.object_id,
+                expected,
+                now - left[1],
+                left_match,
+                sorted(left[0]),
+                now - right[1],
+                right_match,
+                sorted(right[0]),
+            )
+        )
+        return False
 
-        self.get_logger().info('=' * 60)
-        self.get_logger().info('Pick and Place Sequence COMPLETED SUCCESSFULLY!')
-        self.get_logger().info('=' * 60)
-        return True
+    @staticmethod
+    def _execution_succeeded(result) -> bool:
+        """Return true only for MoveItPy's explicit SUCCEEDED status."""
+        status = getattr(result, 'status', None)
+        return status is not None and 'SUCCEEDED' in str(status).upper()
+
+    @staticmethod
+    def _execution_status_text(result) -> str:
+        """Format the MoveItPy status without treating a status object as truthy."""
+        status = getattr(result, 'status', None)
+        return str(status) if status is not None else repr(result)
+
+    def _plan_and_execute(self, component, controller: str, label: str) -> bool:
+        """Plan a stage and require an explicit successful controller outcome."""
+        for attempt in range(1, self.planning_attempts + 1):
+            plan = component.plan()
+            if not plan:
+                self.get_logger().warning(
+                    f'Planning {label} failed ({attempt}/{self.planning_attempts}).'
+                )
+                self._stop_event.wait(self.planning_retry_delay)
+                continue
+            if self.planning_only:
+                self.get_logger().info(f'Planning-only success: {label}')
+                return True
+            try:
+                result = self.moveit.execute(
+                    plan.trajectory, controllers=[controller]
+                )
+            except Exception as error:
+                self.get_logger().error(f'Execution {label} raised: {error}')
+                return False
+            status = self._execution_status_text(result)
+            if self._execution_succeeded(result):
+                self.get_logger().info(f'Completed: {label}; MoveIt status={status}')
+                return True
+            self.get_logger().error(
+                f'Execution failed: {label}; MoveIt status={status}'
+            )
+            return False
+        return False
+
+    def _move_named(self, name: str) -> bool:
+        """Move the arm to a named Panda arm configuration."""
+        self.arm.set_start_state_to_current_state()
+        self.arm.set_goal_state(configuration_name=name)
+        return self._plan_and_execute(
+            self.arm, self.ARM_CONTROLLER, f'arm {name}'
+        )
+
+    def _move_pose(
+        self,
+        position: tuple[float, float, float],
+        orientation: tuple[float, ...],
+        label: str,
+    ) -> bool:
+        """Plan a TCP pose in the configured base frame."""
+        goal = PoseStamped()
+        goal.header.frame_id = self.base_frame
+        goal.pose.position.x, goal.pose.position.y, goal.pose.position.z = position
+        (
+            goal.pose.orientation.x,
+            goal.pose.orientation.y,
+            goal.pose.orientation.z,
+            goal.pose.orientation.w,
+        ) = orientation
+        self.arm.set_start_state_to_current_state()
+        self.arm.set_goal_state(pose_stamped_msg=goal, pose_link=self.tool_link)
+        return self._plan_and_execute(self.arm, self.ARM_CONTROLLER, label)
+
+    def _gripper_named(self, state: str) -> bool:
+        """Plan a named gripper state, used to fully open the fingers."""
+        self.gripper.set_start_state_to_current_state()
+        self.gripper.set_goal_state(configuration_name=state)
+        return self._plan_and_execute(
+            self.gripper, self.HAND_CONTROLLER, f'gripper {state}'
+        )
+
+    def _close_gripper_for(self, task_object: TaskObject) -> bool:
+        """Close in finite steps and stop immediately on verified dual contact."""
+        if self.planning_only:
+            return True
+        opening = 0.04
+        while opening > task_object.gripper_opening:
+            if self._has_dual_contact(task_object):
+                self.get_logger().info(
+                    f'{task_object.object_id}: dual contact detected before the '
+                    f'next close step.'
+                )
+                return True
+            opening = max(
+                task_object.gripper_opening,
+                opening - self.gripper_close_step,
+            )
+            target_state = RobotState(self.moveit.get_robot_model())
+            target_state.set_joint_group_positions(
+                self.gripper_group, np.array([opening, opening], dtype=float)
+            )
+            self.gripper.set_start_state_to_current_state()
+            self.gripper.set_goal_state(robot_state=target_state)
+            label = (
+                f'gripper close step for {task_object.object_id} '
+                f'to {opening:.4f} m'
+            )
+            self.get_logger().info(label)
+            if not self._plan_and_execute(
+                self.gripper, self.HAND_CONTROLLER, label
+            ):
+                # A collision-limited finite step can be canceled after contact
+                # has already been reported. Never accept it without the same
+                # intended-object dual-contact interlock used before lifting.
+                if self._wait_for_dual_contact(task_object):
+                    self.get_logger().info(
+                        f'{task_object.object_id}: accepting contact-limited '
+                        f'close at {opening:.4f} m.'
+                    )
+                    return True
+                return False
+            if self._stop_event.wait(self.gripper_close_settle_duration):
+                return False
+            if self._has_dual_contact(task_object):
+                self.get_logger().info(
+                    f'{task_object.object_id}: dual contact accepted at '
+                    f'{opening:.4f} m per finger.'
+                )
+                return True
+        self.get_logger().warning(
+            f'{task_object.object_id}: reached the configured minimum opening '
+            'without verified dual contact.'
+        )
+        return self._wait_for_dual_contact(task_object)
+
+    def _pick_and_place(self, task_object: TaskObject) -> bool:
+        """Run a retryable physical grasp and non-teleporting placement cycle."""
+        grasp_pose = (
+            task_object.pick_pose[0],
+            task_object.pick_pose[1],
+            task_object.pick_pose[2] + self.grasp_z_offset,
+        )
+        pick_above = (
+            grasp_pose[0],
+            grasp_pose[1],
+            grasp_pose[2] + self.approach_height,
+        )
+        lift = (
+            grasp_pose[0],
+            grasp_pose[1],
+            grasp_pose[2] + self.lift_height,
+        )
+        place_above = (
+            task_object.place_pose[0],
+            task_object.place_pose[1],
+            task_object.place_pose[2] + self.place_approach_height,
+        )
+        retreat = (
+            task_object.place_pose[0],
+            task_object.place_pose[1],
+            task_object.place_pose[2] + self.retreat_height,
+        )
+        for attempt in range(1, self.grasp_attempts + 1):
+            stages: list[tuple[str, Callable[[], bool]]] = [
+                ('open', lambda: self._gripper_named('open')),
+                (
+                    'pre-grasp',
+                    lambda: self._move_pose(
+                        pick_above, self.grasp_orientation, 'pre-grasp'
+                    ),
+                ),
+                (
+                    'approach',
+                    lambda: self._move_pose(
+                        grasp_pose, self.grasp_orientation, 'approach'
+                    ),
+                ),
+                ('close', lambda: self._close_gripper_for(task_object)),
+                ('dual-contact', lambda: self._wait_for_dual_contact(task_object)),
+                (
+                    'lift',
+                    lambda: self._move_pose(
+                        lift, self.grasp_orientation, 'lift'
+                    ),
+                ),
+                (
+                    'retain-contact',
+                    lambda: self._has_dual_contact(task_object)
+                    or self.planning_only,
+                ),
+                (
+                    'pre-place',
+                    lambda: self._move_pose(
+                        place_above, self.place_orientation, 'pre-place'
+                    ),
+                ),
+                (
+                    'lower',
+                    lambda: self._move_pose(
+                        task_object.place_pose, self.place_orientation, 'lower'
+                    ),
+                ),
+                ('release', lambda: self._gripper_named('open')),
+                (
+                    'retreat',
+                    lambda: self._move_pose(
+                        retreat, self.place_orientation, 'retreat'
+                    ),
+                ),
+            ]
+            for stage, operation in stages:
+                if not operation():
+                    self.get_logger().error(
+                        f'{task_object.object_id}: failed at {stage}, '
+                        f'grasp attempt {attempt}.'
+                    )
+                    self._gripper_named('open')
+                    self._move_pose(
+                        pick_above, self.grasp_orientation, 'grasp recovery'
+                    )
+                    break
+            else:
+                self.get_logger().info(
+                    f'{task_object.object_id}: placed using physical contact.'
+                )
+                return True
+        return False
+
+    def run(self) -> None:
+        """Shuffle and process exactly one complete five-object task cycle."""
+        if self._stop_event.wait(self.startup_delay):
+            return
+        order = list(self.objects)
+        seed = None if self.random_seed < 0 else self.random_seed
+        random.Random(seed).shuffle(order)
+        self.get_logger().info(
+            'Pick order: ' + ', '.join(task.object_id for task in order)
+        )
+        if not self._move_named('ready'):
+            return
+        for task_object in order:
+            if not self._pick_and_place(task_object):
+                self.get_logger().error(
+                    f'Task stopped at object {task_object.object_id}.'
+                )
+                return
+        if self.run_forever:
+            self.get_logger().warning(
+                'run_forever is disabled for physical-contact tasks: resetting '
+                'object poses would violate the no-teleport safety policy.'
+            )
+
+    def destroy_node(self) -> bool:
+        """Stop the worker thread before destroying the ROS node."""
+        self._stop_event.set()
+        if self._worker and self._worker.is_alive():
+            self._worker.join(timeout=2.0)
+        return super().destroy_node()
 
 
-def main(args=None):
+def main(args=None) -> None:
+    """Initialize and spin the physical-contact pick-and-place node."""
     rclpy.init(args=args)
     node = PickPlaceNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':

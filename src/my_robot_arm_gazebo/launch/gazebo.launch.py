@@ -1,6 +1,3 @@
-import os
-
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
@@ -41,7 +38,10 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'headless',
             default_value='false',
-            description='Run Gazebo in headless mode (server only, no GUI) to save CPU/GPU resources',
+            description=(
+                'Run Gazebo in headless mode (server only, no GUI) to save '
+                'CPU/GPU resources'
+            ),
         )
     )
 
@@ -100,11 +100,16 @@ def generate_launch_description():
         }.items(),
     )
 
-    # Bridge to forward clock from Gazebo to ROS
+    # Bridge simulation clock and both physical gripper contact sensors to ROS.
+    # Contacts are published by sensors added to the Panda Xacro only for Gazebo.
     clock_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'],
+        arguments=[
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+            '/panda/left_finger/contact@ros_gz_interfaces/msg/Contacts[gz.msgs.Contacts',
+            '/panda/right_finger/contact@ros_gz_interfaces/msg/Contacts[gz.msgs.Contacts',
+        ],
         output='screen',
     )
 

@@ -9,7 +9,8 @@
     <link name="panda_leftfinger"/>
     <link name="panda_rightfinger"/>
     <joint name="panda_finger_joint1"/>
-    <passive_joint name="panda_finger_joint2"/>
+    <!-- The Gazebo backend commands both physical fingers directly. -->
+    <joint name="panda_finger_joint2"/>
   </group>
   <group name="panda_arm_hand">
     <group name="panda_arm"/>

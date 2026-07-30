@@ -5,7 +5,7 @@
   <version>0.0.0</version>
   <description>Panda robot arm description for pick and place</description>
   <maintainer email="ducduydao12112004@gmail.com">ddd</maintainer>
-  <license>TODO: License declaration</license>
+  <license>MIT</license>
 
   <depend>rclpy</depend>
 

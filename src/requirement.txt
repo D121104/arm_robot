@@ -1,2 +1,0 @@
-hiện tại arm đang bị lỗi, khi chạy trong gabezo arm luôn rung lắc, không gắp được vật thể
-kiểm tra và fix lỗi cho tôi, sau đó chạy test để chắc chắn vật thể được gắp và di chuyển đến vị trí mới
