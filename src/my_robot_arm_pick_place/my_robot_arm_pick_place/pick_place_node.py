@@ -511,67 +511,6 @@ class PickPlaceNode(Node):
         self.arm.set_goal_state(pose_stamped_msg=goal, pose_link=self.tool_link)
         return self._plan_and_execute(self.arm, self.ARM_CONTROLLER, label)
 
-    def _move_vertical_steps(
-        self,
-        start: tuple[float, float, float],
-        target: tuple[float, float, float],
-        orientation: tuple[float, ...],
-        label: str,
-        step_size: float = 0.025,
-    ) -> bool:
-        """Descend vertically through short pose goals to reduce lateral sweep."""
-        distance = abs(target[2] - start[2])
-        steps = max(1, math.ceil(distance / step_size))
-        self.get_logger().info(
-            f'{label}: vertical descent {distance:.3f} m in {steps} step(s).'
-        )
-        for index in range(1, steps + 1):
-            ratio = index / steps
-            waypoint = (
-                target[0],
-                target[1],
-                start[2] + (target[2] - start[2]) * ratio,
-            )
-            if not self._move_pose(
-                waypoint, orientation, f'{label} step {index}/{steps}'
-            ):
-                return False
-        return True
-
-    def _lift_with_contact_checks(
-        self,
-        task_object: TaskObject,
-        start: tuple[float, float, float],
-        target: tuple[float, float, float],
-        orientation: tuple[float, ...],
-        step_size: float = 0.020,
-    ) -> bool:
-        """Lift in short vertical increments while requiring dual contact."""
-        distance = target[2] - start[2]
-        steps = max(1, math.ceil(distance / step_size))
-        self.get_logger().info(
-            f'lift: vertical ascent {distance:.3f} m in {steps} step(s) '
-            'with contact checks.'
-        )
-        for index in range(1, steps + 1):
-            if not self._log_grasp_contact_snapshot(
-                task_object, f'lift-{index}-before'
-            ):
-                return False
-            ratio = index / steps
-            waypoint = (start[0], start[1], start[2] + distance * ratio)
-            if not self._move_pose(
-                waypoint, orientation, f'lift step {index}/{steps}'
-            ):
-                return False
-            if not self._has_recent_dual_contact(task_object):
-                self.get_logger().error(
-                    f'{task_object.object_id}: contact lost after lift step '
-                    f'{index}/{steps}.'
-                )
-                return False
-        return True
-
     @staticmethod
     def _top_down_orientation(yaw_deg: float) -> tuple[float, float, float, float]:
         """Return xyzw for a downward TCP with configurable world-Z yaw."""
@@ -697,11 +636,6 @@ class PickPlaceNode(Node):
             task_object.place_pose[1],
             place_z,
         )
-        transfer_midpoint = (
-            (lift[0] + place_above[0]) / 2.0,
-            (lift[1] + place_above[1]) / 2.0,
-            max(lift[2], place_above[2]),
-        )
         retreat = (
             task_object.place_pose[0],
             task_object.place_pose[1],
@@ -718,8 +652,8 @@ class PickPlaceNode(Node):
                 ),
                 (
                     'approach',
-                    lambda: self._move_vertical_steps(
-                        pick_above, grasp_pose, object_orientation, 'approach'
+                    lambda: self._move_pose(
+                        grasp_pose, object_orientation, 'approach'
                     ),
                 ),
                 ('close', lambda: self._close_gripper_for(task_object)),
@@ -732,9 +666,7 @@ class PickPlaceNode(Node):
                 ),
                 (
                     'lift',
-                    lambda: self._lift_with_contact_checks(
-                        task_object, grasp_pose, lift, object_orientation
-                    ),
+                    lambda: self._move_pose(lift, object_orientation, 'lift'),
                 ),
                 (
                     'retain-contact',
@@ -745,18 +677,6 @@ class PickPlaceNode(Node):
                     or self.planning_only,
                 ),
                 (
-                    'transfer-midpoint',
-                    lambda: self._move_pose(
-                        transfer_midpoint,
-                        object_orientation,
-                        'transfer midpoint',
-                    ),
-                ),
-                (
-                    'transfer-contact',
-                    lambda: self._has_recent_dual_contact(task_object),
-                ),
-                (
                     'pre-place',
                     lambda: self._move_pose(
                         place_above, object_orientation, 'pre-place'
@@ -764,18 +684,15 @@ class PickPlaceNode(Node):
                 ),
                 (
                     'lower',
-                    lambda: self._move_vertical_steps(
-                        place_above,
-                        place_target,
-                        object_orientation,
-                        'lower',
+                    lambda: self._move_pose(
+                        place_target, object_orientation, 'lower'
                     ),
                 ),
                 ('release', lambda: self._gripper_named('open')),
                 (
                     'retreat',
                     lambda: self._move_pose(
-                        retreat, self.place_orientation, 'retreat'
+                        retreat, object_orientation, 'retreat'
                     ),
                 ),
             ]
@@ -793,7 +710,7 @@ class PickPlaceNode(Node):
                     )
                     self._gripper_named('open')
                     self._move_pose(
-                        pick_above, self.grasp_orientation, 'grasp recovery'
+                        pick_above, object_orientation, 'grasp recovery'
                     )
                     break
             else:
@@ -821,6 +738,17 @@ class PickPlaceNode(Node):
                     f'Task stopped at object {task_object.object_id}.'
                 )
                 return
+        self.get_logger().info(
+            'All five objects placed successfully; returning arm to ready pose.'
+        )
+        if not self._move_named('ready'):
+            self.get_logger().error(
+                'All objects were placed, but returning to ready pose failed.'
+            )
+            return
+        self.get_logger().info(
+            'Five-object task complete; arm returned to ready pose.'
+        )
         if self.run_forever:
             self.get_logger().warning(
                 'run_forever is disabled for physical-contact tasks: resetting '
