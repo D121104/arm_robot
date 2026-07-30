@@ -9,6 +9,7 @@ both finger contact sensors report the currently selected object.
 
 from dataclasses import dataclass
 import json
+import math
 import os
 import random
 import threading
@@ -219,12 +220,42 @@ class PickPlaceNode(Node):
         self.grasp_orientation = tuple(float(x) for x in value('grasp_orientation'))
         self.place_orientation = tuple(float(x) for x in value('place_orientation'))
         self.objects = self._parse_catalog(str(value('object_catalog_json')))
+        self._log_workspace_diagnostics()
         if not 0.0 < self.gripper_close_step <= 0.04:
             raise ValueError('gripper_close_step must be in (0.0, 0.04].')
         if self.gripper_close_settle_duration < 0.0:
             raise ValueError('gripper_close_settle_duration must be non-negative.')
         if self.use_contacts and not self.use_sim_time:
             raise ValueError('Physical contact validation requires backend:=gazebo.')
+
+    def _log_workspace_diagnostics(self) -> None:
+        """Log pick/place reach, transfer distance, and left-to-right direction."""
+        self.get_logger().info(
+            'Workspace diagnostics use base_frame=%s; horizontal radii are '
+            'measured from the arm base.' % self.base_frame
+        )
+        for task_object in self.objects:
+            pick_x, pick_y, _ = task_object.pick_pose
+            place_x, place_y, _ = task_object.place_pose
+            pick_radius = math.hypot(pick_x, pick_y)
+            place_radius = math.hypot(place_x, place_y)
+            transfer = math.hypot(place_x - pick_x, place_y - pick_y)
+            direction = 'left-to-right' if place_y > pick_y else 'NOT left-to-right'
+            self.get_logger().info(
+                'Workspace %s: pick=(%.3f, %.3f), place=(%.3f, %.3f), '
+                'base radii=(%.3f, %.3f) m, transfer=%.3f m, direction=%s.'
+                % (
+                    task_object.object_id,
+                    pick_x,
+                    pick_y,
+                    place_x,
+                    place_y,
+                    pick_radius,
+                    place_radius,
+                    transfer,
+                    direction,
+                )
+            )
 
     @staticmethod
     def _parse_catalog(raw: str) -> list[TaskObject]:
