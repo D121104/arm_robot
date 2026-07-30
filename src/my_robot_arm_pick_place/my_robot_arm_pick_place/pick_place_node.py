@@ -150,11 +150,12 @@ class PickPlaceNode(Node):
             'tool_link': 'panda_link8',
             'use_physical_contacts': True,
             'planning_only': False,
-            'grasp_z_offset': 0.020,
-            'approach_height': 0.12,
-            'lift_height': 0.18,
-            'place_approach_height': 0.15,
-            'retreat_height': 0.20,
+            'grasp_z_offset': 0.103,
+            'place_z_offset': 0.103,
+            'approach_height': 0.15,
+            'lift_height': 0.22,
+            'place_approach_height': 0.20,
+            'retreat_height': 0.25,
             'planning_attempts': 3,
             'grasp_attempts': 2,
             'planning_retry_delay': 0.5,
@@ -193,6 +194,7 @@ class PickPlaceNode(Node):
         self.autorun = bool(value('autorun'))
         self.run_forever = bool(value('run_forever'))
         self.grasp_z_offset = float(value('grasp_z_offset'))
+        self.place_z_offset = float(value('place_z_offset'))
         self.approach_height = float(value('approach_height'))
         self.lift_height = float(value('lift_height'))
         self.place_approach_height = float(value('place_approach_height'))
@@ -482,15 +484,21 @@ class PickPlaceNode(Node):
             grasp_pose[1],
             grasp_pose[2] + self.lift_height,
         )
+        place_z = task_object.place_pose[2] + self.place_z_offset
         place_above = (
             task_object.place_pose[0],
             task_object.place_pose[1],
-            task_object.place_pose[2] + self.place_approach_height,
+            place_z + self.place_approach_height,
+        )
+        place_target = (
+            task_object.place_pose[0],
+            task_object.place_pose[1],
+            place_z,
         )
         retreat = (
             task_object.place_pose[0],
             task_object.place_pose[1],
-            task_object.place_pose[2] + self.retreat_height,
+            place_z + self.retreat_height,
         )
         for attempt in range(1, self.grasp_attempts + 1):
             stages: list[tuple[str, Callable[[], bool]]] = [
@@ -529,7 +537,7 @@ class PickPlaceNode(Node):
                 (
                     'lower',
                     lambda: self._move_pose(
-                        task_object.place_pose, self.place_orientation, 'lower'
+                        place_target, self.place_orientation, 'lower'
                     ),
                 ),
                 ('release', lambda: self._gripper_named('open')),
