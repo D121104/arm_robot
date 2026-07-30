@@ -123,6 +123,11 @@ class PickPlaceNode(Node):
             # report its tolerance-based success.
             'trajectory_execution.allowed_execution_duration_scaling': 3.0,
             'trajectory_execution.allowed_goal_duration_margin': 5.0,
+            # Gazebo physics causes small joint deviations while the arm holds
+            # an object. The default 0.01 rad tolerance from
+            # moveit_controllers.yaml is too strict and rejects valid
+            # post-grasp trajectories.
+            'trajectory_execution.allowed_start_tolerance': 0.05,
             'qos_overrides./clock.subscription.depth': 1,
             'qos_overrides./clock.subscription.durability': 'volatile',
             'qos_overrides./clock.subscription.history': 'keep_last',
@@ -131,8 +136,8 @@ class PickPlaceNode(Node):
         self.get_logger().info(
             'Initializing MoveItPy with use_sim_time=%s, start-state '
             'bounds tolerance=0.001, trajectory execution allowance '
-            '(scaling=3.0, goal margin=5.0 s), and ClockQoS '
-            '(keep_last, depth=1, reliable, volatile).'
+            '(scaling=3.0, goal margin=5.0 s, start tolerance=0.05 rad), '
+            'and ClockQoS (keep_last, depth=1, reliable, volatile).'
             % self.use_sim_time
         )
         self.moveit = MoveItPy(
@@ -156,12 +161,12 @@ class PickPlaceNode(Node):
             'lift_height': 0.12,
             'place_approach_height': 0.10,
             'retreat_height': 0.12,
-            'planning_attempts': 3,
+            'planning_attempts': 5,
             'grasp_attempts': 2,
             'planning_retry_delay': 0.5,
             'contact_timeout': 2.0,
             'contact_settle_duration': 0.20,
-            'contact_max_age': 0.30,
+            'contact_max_age': 1.0,
             # Close the physical gripper in finite, reachable increments and
             # stop as soon as both fingers contact the requested object.
             'gripper_close_step': 0.005,
@@ -525,7 +530,7 @@ class PickPlaceNode(Node):
                 ),
                 (
                     'retain-contact',
-                    lambda: self._has_dual_contact(task_object)
+                    lambda: self._wait_for_dual_contact(task_object)
                     or self.planning_only,
                 ),
                 (

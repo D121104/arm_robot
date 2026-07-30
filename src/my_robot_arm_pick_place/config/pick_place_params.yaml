@@ -20,12 +20,12 @@ pick_place_node:
     lift_height: 0.12
     place_approach_height: 0.10
     retreat_height: 0.12
-    planning_attempts: 3
+    planning_attempts: 5
     grasp_attempts: 2
     planning_retry_delay: 0.5
     contact_timeout: 2.0
     contact_settle_duration: 0.20
-    contact_max_age: 0.30
+    contact_max_age: 1.0
     # Close using reachable 5 mm trajectories and stop immediately once both
     # fingers have recent contact with the selected object.
     gripper_close_step: 0.005
