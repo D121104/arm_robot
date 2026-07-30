@@ -177,8 +177,8 @@ class PickPlaceNode(Node):
             'autorun': True,
             'run_forever': False,
             'object_catalog_json': '[]',
-            'grasp_orientation': [1.0, 0.0, 0.0, 0.0],
-            'place_orientation': [1.0, 0.0, 0.0, 0.0],
+            'grasp_orientation': [0.9238795, -0.3826834, 0.0, 0.0],
+            'place_orientation': [0.9238795, -0.3826834, 0.0, 0.0],
         }
         for name, value in defaults.items():
             self.declare_parameter(name, value)
