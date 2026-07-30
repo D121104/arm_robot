@@ -355,6 +355,7 @@ class PickPlaceNode(Node):
     def _plan_and_execute(self, component, controller: str, label: str) -> bool:
         """Plan a stage and require an explicit successful controller outcome."""
         for attempt in range(1, self.planning_attempts + 1):
+            component.set_start_state_to_current_state()
             plan = component.plan()
             if not plan:
                 self.get_logger().warning(
@@ -376,10 +377,11 @@ class PickPlaceNode(Node):
             if self._execution_succeeded(result):
                 self.get_logger().info(f'Completed: {label}; MoveIt status={status}')
                 return True
-            self.get_logger().error(
-                f'Execution failed: {label}; MoveIt status={status}'
+            self.get_logger().warning(
+                f'Execution {label} failed ({attempt}/{self.planning_attempts}); '
+                f'MoveIt status={status}. Will re-plan.'
             )
-            return False
+            self._stop_event.wait(self.planning_retry_delay)
         return False
 
     def _move_named(self, name: str) -> bool:
