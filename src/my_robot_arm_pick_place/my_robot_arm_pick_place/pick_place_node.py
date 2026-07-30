@@ -37,6 +37,7 @@ class TaskObject:
     gripper_opening: float
     pick_pose: tuple[float, float, float]
     place_pose: tuple[float, float, float]
+    grasp_yaw: float = 0.0
 
 
 class PickPlaceNode(Node):
@@ -251,6 +252,7 @@ class PickPlaceNode(Node):
                 raise ValueError(f'Duplicate placement pose: {place}')
             ids.add(object_id)
             destinations.add(place)
+            grasp_yaw = float(item.get('grasp_yaw', 0.0))
             objects.append(
                 TaskObject(
                     object_id,
@@ -260,6 +262,7 @@ class PickPlaceNode(Node):
                     opening,
                     pick,
                     place,
+                    grasp_yaw,
                 )
             )
         return objects
@@ -428,9 +431,17 @@ class PickPlaceNode(Node):
         while opening > task_object.gripper_opening:
             if self._has_dual_contact(task_object):
                 self.get_logger().info(
-                    f'{task_object.object_id}: dual contact detected before the '
-                    f'next close step.'
+                    f'{task_object.object_id}: dual contact detected at {opening:.4f} m per finger. '
+                    'Applying extra squeeze for firm grip...'
                 )
+                squeeze_opening = max(0.0, opening - 0.003)
+                target_state = RobotState(self.moveit.get_robot_model())
+                target_state.set_joint_group_positions(
+                    self.gripper_group, np.array([squeeze_opening, squeeze_opening], dtype=float)
+                )
+                self.gripper.set_start_state_to_current_state()
+                self.gripper.set_goal_state(robot_state=target_state)
+                self._plan_and_execute(self.gripper, self.HAND_CONTROLLER, f'gripper squeeze for {task_object.object_id}')
                 return True
             opening = max(
                 task_object.gripper_opening,
@@ -450,13 +461,9 @@ class PickPlaceNode(Node):
             if not self._plan_and_execute(
                 self.gripper, self.HAND_CONTROLLER, label
             ):
-                # A collision-limited finite step can be canceled after contact
-                # has already been reported. Never accept it without the same
-                # intended-object dual-contact interlock used before lifting.
                 if self._wait_for_dual_contact(task_object):
                     self.get_logger().info(
-                        f'{task_object.object_id}: accepting contact-limited '
-                        f'close at {opening:.4f} m.'
+                        f'{task_object.object_id}: accepting contact-limited close.'
                     )
                     return True
                 return False
@@ -464,9 +471,16 @@ class PickPlaceNode(Node):
                 return False
             if self._has_dual_contact(task_object):
                 self.get_logger().info(
-                    f'{task_object.object_id}: dual contact accepted at '
-                    f'{opening:.4f} m per finger.'
+                    f'{task_object.object_id}: dual contact accepted at {opening:.4f} m. Applying squeeze...'
                 )
+                squeeze_opening = max(0.0, opening - 0.003)
+                target_state = RobotState(self.moveit.get_robot_model())
+                target_state.set_joint_group_positions(
+                    self.gripper_group, np.array([squeeze_opening, squeeze_opening], dtype=float)
+                )
+                self.gripper.set_start_state_to_current_state()
+                self.gripper.set_goal_state(robot_state=target_state)
+                self._plan_and_execute(self.gripper, self.HAND_CONTROLLER, f'gripper squeeze for {task_object.object_id}')
                 return True
         self.get_logger().warning(
             f'{task_object.object_id}: reached the configured minimum opening '
@@ -474,8 +488,21 @@ class PickPlaceNode(Node):
         )
         return self._wait_for_dual_contact(task_object)
 
+    @staticmethod
+    def _yaw_to_topdown_quaternion(yaw_deg: float) -> tuple[float, float, float, float]:
+        """Convert a yaw angle in degrees to a top-down grasp quaternion (x, y, z, w)."""
+        yaw_rad = np.radians(yaw_deg)
+        half = yaw_rad / 2.0
+        return (float(np.cos(half)), float(np.sin(half)), 0.0, 0.0)
+
     def _pick_and_place(self, task_object: TaskObject) -> bool:
         """Run a retryable physical grasp and non-teleporting placement cycle."""
+        grasp_orientation = (
+            self._yaw_to_topdown_quaternion(task_object.grasp_yaw)
+            if task_object.grasp_yaw != 0.0
+            else self.grasp_orientation
+        )
+        place_orientation = grasp_orientation
         grasp_pose = (
             task_object.pick_pose[0],
             task_object.pick_pose[1],
@@ -513,14 +540,14 @@ class PickPlaceNode(Node):
                 (
                     'pre-grasp',
                     lambda: self._move_pose(
-                        pick_above, self.grasp_orientation, 'pre-grasp'
+                        pick_above, grasp_orientation, 'pre-grasp'
                     ),
                 ),
                 ('ensure-open', lambda: self._gripper_named('open')),
                 (
                     'approach',
                     lambda: self._move_pose(
-                        grasp_pose, self.grasp_orientation, 'approach'
+                        grasp_pose, grasp_orientation, 'approach'
                     ),
                 ),
                 ('close', lambda: self._close_gripper_for(task_object)),
@@ -528,7 +555,7 @@ class PickPlaceNode(Node):
                 (
                     'lift',
                     lambda: self._move_pose(
-                        lift, self.grasp_orientation, 'lift'
+                        lift, grasp_orientation, 'lift'
                     ),
                 ),
                 (
@@ -539,20 +566,20 @@ class PickPlaceNode(Node):
                 (
                     'pre-place',
                     lambda: self._move_pose(
-                        place_above, self.place_orientation, 'pre-place'
+                        place_above, place_orientation, 'pre-place'
                     ),
                 ),
                 (
                     'lower',
                     lambda: self._move_pose(
-                        place_target, self.place_orientation, 'lower'
+                        place_target, place_orientation, 'lower'
                     ),
                 ),
                 ('release', lambda: self._gripper_named('open')),
                 (
                     'retreat',
                     lambda: self._move_pose(
-                        retreat, self.place_orientation, 'retreat'
+                        retreat, place_orientation, 'retreat'
                     ),
                 ),
             ]
@@ -564,7 +591,7 @@ class PickPlaceNode(Node):
                     )
                     self._gripper_named('open')
                     self._move_pose(
-                        pick_above, self.grasp_orientation, 'grasp recovery'
+                        pick_above, grasp_orientation, 'grasp recovery'
                     )
                     break
             else:
