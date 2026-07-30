@@ -38,6 +38,7 @@ class TaskObject:
     gripper_opening: float
     pick_pose: tuple[float, float, float]
     place_pose: tuple[float, float, float]
+    grasp_yaw_deg: float
 
 
 class PickPlaceNode(Node):
@@ -221,6 +222,7 @@ class PickPlaceNode(Node):
         self.place_orientation = tuple(float(x) for x in value('place_orientation'))
         self.objects = self._parse_catalog(str(value('object_catalog_json')))
         self._log_workspace_diagnostics()
+        self._log_gripper_orientation_diagnostics()
         if not 0.0 < self.gripper_close_step <= 0.04:
             raise ValueError('gripper_close_step must be in (0.0, 0.04].')
         if self.gripper_close_settle_duration < 0.0:
@@ -257,6 +259,15 @@ class PickPlaceNode(Node):
                 )
             )
 
+    def _log_gripper_orientation_diagnostics(self) -> None:
+        """Log configured TCP quaternions and the fixed hand yaw compensation."""
+        self.get_logger().info(
+            'Gripper orientation diagnostics: grasp quaternion xyzw=%s; place '
+            'quaternion xyzw=%s; panda_hand has a fixed -45 deg yaw relative '
+            'to panda_link8, so TCP [1, 0, 0, 0] leaves the fingers diagonal.'
+            % (self.grasp_orientation, self.place_orientation)
+        )
+
     @staticmethod
     def _parse_catalog(raw: str) -> list[TaskObject]:
         """Parse and validate the exactly-five-object task catalog."""
@@ -291,6 +302,7 @@ class PickPlaceNode(Node):
                     opening,
                     pick,
                     place,
+                    float(item.get('grasp_yaw_deg', 45.0)),
                 )
             )
         return objects
@@ -331,6 +343,30 @@ class PickPlaceNode(Node):
             and any(expected in name for name in left[0])
             and any(expected in name for name in right[0])
         )
+
+    def _log_grasp_contact_snapshot(
+        self, task_object: TaskObject, stage: str
+    ) -> bool:
+        """Log exact finger contacts immediately before and after lifting."""
+        now = time.monotonic()
+        with self._contact_lock:
+            left = self._finger_contacts['left']
+            right = self._finger_contacts['right']
+        valid = self._has_dual_contact(task_object)
+        self.get_logger().info(
+            'Grasp contact snapshot %s/%s: dual=%s; left age=%.3fs '
+            'entities=%s; right age=%.3fs entities=%s.'
+            % (
+                task_object.object_id,
+                stage,
+                valid,
+                now - left[1],
+                sorted(left[0]),
+                now - right[1],
+                sorted(right[0]),
+            )
+        )
+        return valid
 
     def _wait_for_dual_contact(self, task_object: TaskObject) -> bool:
         """Wait until valid dual contact remains stable for the configured duration."""
@@ -443,6 +479,73 @@ class PickPlaceNode(Node):
         self.arm.set_goal_state(pose_stamped_msg=goal, pose_link=self.tool_link)
         return self._plan_and_execute(self.arm, self.ARM_CONTROLLER, label)
 
+    def _move_vertical_steps(
+        self,
+        start: tuple[float, float, float],
+        target: tuple[float, float, float],
+        orientation: tuple[float, ...],
+        label: str,
+        step_size: float = 0.025,
+    ) -> bool:
+        """Descend vertically through short pose goals to reduce lateral sweep."""
+        distance = abs(target[2] - start[2])
+        steps = max(1, math.ceil(distance / step_size))
+        self.get_logger().info(
+            f'{label}: vertical descent {distance:.3f} m in {steps} step(s).'
+        )
+        for index in range(1, steps + 1):
+            ratio = index / steps
+            waypoint = (
+                target[0],
+                target[1],
+                start[2] + (target[2] - start[2]) * ratio,
+            )
+            if not self._move_pose(
+                waypoint, orientation, f'{label} step {index}/{steps}'
+            ):
+                return False
+        return True
+
+    def _lift_with_contact_checks(
+        self,
+        task_object: TaskObject,
+        start: tuple[float, float, float],
+        target: tuple[float, float, float],
+        orientation: tuple[float, ...],
+        step_size: float = 0.020,
+    ) -> bool:
+        """Lift in short vertical increments while requiring dual contact."""
+        distance = target[2] - start[2]
+        steps = max(1, math.ceil(distance / step_size))
+        self.get_logger().info(
+            f'lift: vertical ascent {distance:.3f} m in {steps} step(s) '
+            'with contact checks.'
+        )
+        for index in range(1, steps + 1):
+            if not self._log_grasp_contact_snapshot(
+                task_object, f'lift-{index}-before'
+            ):
+                return False
+            ratio = index / steps
+            waypoint = (start[0], start[1], start[2] + distance * ratio)
+            if not self._move_pose(
+                waypoint, orientation, f'lift step {index}/{steps}'
+            ):
+                return False
+            if not self._wait_for_dual_contact(task_object):
+                self.get_logger().error(
+                    f'{task_object.object_id}: contact lost after lift step '
+                    f'{index}/{steps}.'
+                )
+                return False
+        return True
+
+    @staticmethod
+    def _top_down_orientation(yaw_deg: float) -> tuple[float, float, float, float]:
+        """Return xyzw for a downward TCP with configurable world-Z yaw."""
+        half_yaw = math.radians(yaw_deg) / 2.0
+        return (math.cos(half_yaw), math.sin(half_yaw), 0.0, 0.0)
+
     def _gripper_named(self, state: str) -> bool:
         """Plan a named gripper state, used to fully open the fingers."""
         self.gripper.set_start_state_to_current_state()
@@ -507,6 +610,35 @@ class PickPlaceNode(Node):
 
     def _pick_and_place(self, task_object: TaskObject) -> bool:
         """Run a retryable physical grasp and non-teleporting placement cycle."""
+        object_height = (
+            task_object.dimensions[2]
+            if task_object.shape == 'box'
+            else task_object.dimensions[1]
+        )
+        fingertip_below_link8 = 0.0984
+        fingertip_center_relative_to_object = (
+            self.grasp_z_offset - fingertip_below_link8
+        )
+        self.get_logger().info(
+            'Grasp geometry %s: object height=%.4f m, link8 offset=%.4f m, '
+            'estimated fingertip center relative to object center=%+.4f m; '
+            'desired near 0.0000 m.'
+            % (
+                task_object.object_id,
+                object_height,
+                self.grasp_z_offset,
+                fingertip_center_relative_to_object,
+            )
+        )
+        object_orientation = self._top_down_orientation(task_object.grasp_yaw_deg)
+        self.get_logger().info(
+            '%s: selected object yaw=%.1f deg, quaternion xyzw=%s.'
+            % (
+                task_object.object_id,
+                task_object.grasp_yaw_deg,
+                object_orientation,
+            )
+        )
         grasp_pose = (
             task_object.pick_pose[0],
             task_object.pick_pose[1],
@@ -544,26 +676,35 @@ class PickPlaceNode(Node):
                 (
                     'pre-grasp',
                     lambda: self._move_pose(
-                        pick_above, self.grasp_orientation, 'pre-grasp'
+                        pick_above, object_orientation, 'pre-grasp'
                     ),
                 ),
                 (
                     'approach',
-                    lambda: self._move_pose(
-                        grasp_pose, self.grasp_orientation, 'approach'
+                    lambda: self._move_vertical_steps(
+                        pick_above, grasp_pose, object_orientation, 'approach'
                     ),
                 ),
                 ('close', lambda: self._close_gripper_for(task_object)),
                 ('dual-contact', lambda: self._wait_for_dual_contact(task_object)),
                 (
+                    'pre-lift-contact-log',
+                    lambda: self._log_grasp_contact_snapshot(
+                        task_object, 'pre-lift'
+                    ),
+                ),
+                (
                     'lift',
-                    lambda: self._move_pose(
-                        lift, self.grasp_orientation, 'lift'
+                    lambda: self._lift_with_contact_checks(
+                        task_object, grasp_pose, lift, object_orientation
                     ),
                 ),
                 (
                     'retain-contact',
-                    lambda: self._wait_for_dual_contact(task_object)
+                    lambda: (
+                        self._log_grasp_contact_snapshot(task_object, 'post-lift')
+                        and self._wait_for_dual_contact(task_object)
+                    )
                     or self.planning_only,
                 ),
                 (
@@ -574,8 +715,11 @@ class PickPlaceNode(Node):
                 ),
                 (
                     'lower',
-                    lambda: self._move_pose(
-                        place_target, self.place_orientation, 'lower'
+                    lambda: self._move_vertical_steps(
+                        place_above,
+                        place_target,
+                        object_orientation,
+                        'lower',
                     ),
                 ),
                 ('release', lambda: self._gripper_named('open')),
